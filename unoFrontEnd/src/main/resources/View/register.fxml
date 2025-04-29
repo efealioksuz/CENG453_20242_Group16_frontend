@@ -8,7 +8,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.unofrontend.controllers.LoginController"
+            fx:controller="com.example.unofrontend.controllers.RegisterController"
             prefHeight="400.0" prefWidth="600.0">
 
     <children>
@@ -17,7 +17,7 @@
               AnchorPane.rightAnchor="0.0"
               AnchorPane.topAnchor="0.0"
               AnchorPane.bottomAnchor="0.0">
-            <Label text="Login" style="-fx-font-size: 24px;"/>
+            <Label text="Register" style="-fx-font-size: 24px;"/>
 
             <HBox spacing="10" alignment="CENTER">
                 <Label text="Username:" prefWidth="80.0"/>
@@ -25,19 +25,19 @@
             </HBox>
 
             <HBox spacing="10" alignment="CENTER">
+                <Label text="Email:" prefWidth="80.0"/>
+                <TextField fx:id="emailField" prefWidth="200.0"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER">
                 <Label text="Password:" prefWidth="80.0"/>
                 <PasswordField fx:id="passwordField" prefWidth="200.0"/>
             </HBox>
 
-            <Button text="Login" prefWidth="100.0" onAction="#handleLogin"/>
-            
-            <Label text="Don't have an account?"/>
-            <Button fx:id="registerButton" text="Register" prefWidth="100.0" onAction="#switchToRegister"/>
-
-            <Label text="Forgot your password?"/>
-            <Button fx:id="resetPasswordButton" text="Reset Password" prefWidth="100.0" onAction="#switchToResetPassword"/>
+            <Button text="Register" prefWidth="100.0" onAction="#handleRegister"/>
+            <Button fx:id="backToLoginButton" text="Back to Login" prefWidth="100.0" onAction="#switchToLogin"/>
 
             <Label fx:id="errorLabel" textFill="red"/>
         </VBox>
     </children>
-</AnchorPane>
+</AnchorPane> 
