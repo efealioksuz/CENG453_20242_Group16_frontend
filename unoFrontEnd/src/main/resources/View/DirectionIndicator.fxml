@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<HBox xmlns:fx="http://javafx.com/fxml"
+      alignment="CENTER" spacing="10"
+      fx:id="directionBox"
+      fx:controller="com.example.unofrontend.controllers.DirectionIndicatorController">
+    <Label fx:id="directionLabel" text="Direction: Clockwise" />
+</HBox> 

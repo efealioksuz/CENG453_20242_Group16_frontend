@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Label?>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:id="cardPane"
+           fx:controller="com.example.unofrontend.controllers.CardController"
+           styleClass="uno-card" minWidth="80" minHeight="120" maxWidth="45" maxHeight="70"
+           stylesheets="@styles/uno-cards.css">
+    <Label fx:id="cardValue" text="5" styleClass="card-value" />
+</StackPane> 
