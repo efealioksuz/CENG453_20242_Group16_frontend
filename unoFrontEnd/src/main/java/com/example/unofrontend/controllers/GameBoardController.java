@@ -17,7 +17,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GameBoardController {
     @FXML
     private Button backToLogin;

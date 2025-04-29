@@ -14,7 +14,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Controller;
 
+@Controller
 public class LoginController {
 
     @FXML
@@ -32,7 +36,11 @@ public class LoginController {
     @FXML
     private Button resetPasswordButton;
 
-    private final ApiService apiService = new ApiService();
+    @Autowired
+    private ApiService apiService;
+
+    @Autowired
+    private ApplicationContext context;
 
     @FXML
     private void handleLogin() {
@@ -52,6 +60,7 @@ public class LoginController {
             errorLabel.setStyle("-fx-text-fill: green;");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/GameBoard.fxml"));
+                loader.setControllerFactory(context::getBean);
                 Parent root = loader.load();
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 Scene scene = new Scene(root);
@@ -70,6 +79,7 @@ public class LoginController {
     private void switchToRegister() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/register.fxml"));
+            loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
             Stage stage = (Stage) registerButton.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -82,6 +92,7 @@ public class LoginController {
     private void switchToResetPassword() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/reset-password.fxml"));
+            loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
             Stage stage = (Stage) resetPasswordButton.getScene().getWindow();
             stage.setScene(new Scene(root));
