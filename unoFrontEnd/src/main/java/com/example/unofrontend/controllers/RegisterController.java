@@ -1,8 +1,10 @@
 package com.example.unofrontend.controllers;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import com.example.unofrontend.models.LoginRequest;
+import com.example.unofrontend.models.RegisterRequest;
 import com.example.unofrontend.services.ApiService;
 
 import javafx.fxml.FXML;
@@ -15,7 +17,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class LoginController {
+public class RegisterController {
 
     @FXML
     private TextField usernameField;
@@ -24,32 +26,44 @@ public class LoginController {
     private PasswordField passwordField;
 
     @FXML
+    private TextField emailField;
+
+    @FXML
     private Label errorLabel;
 
     @FXML
-    private Button registerButton;
-
-    @FXML
-    private Button resetPasswordButton;
+    private Button backToLoginButton;
 
     private final ApiService apiService = new ApiService();
 
     @FXML
-    private void handleLogin() {
+    private void handleRegister() {
         String username = usernameField.getText();
         String password = passwordField.getText();
+        String email = emailField.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            errorLabel.setText("Username and Password cannot be empty!");
+        if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+            errorLabel.setText("All fields are required!");
             errorLabel.setStyle("-fx-text-fill: red;");
             return;
         }
 
-        String result = apiService.login(new LoginRequest(username, password));
+        String result = apiService.register(new RegisterRequest(username, password, email));
 
         if (result.equals("success")) {
-            errorLabel.setText("Login successful!");
+            errorLabel.setText("Registration successful! Redirecting to login page...");
             errorLabel.setStyle("-fx-text-fill: green;");
+            
+      
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    javafx.application.Platform.runLater(() -> {
+                        switchToLogin();
+                    });
+                }
+            }, 2000);
         } else {
             errorLabel.setText(result);
             errorLabel.setStyle("-fx-text-fill: red;");
@@ -57,26 +71,14 @@ public class LoginController {
     }
 
     @FXML
-    private void switchToRegister() {
+    private void switchToLogin() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/register.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/login.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) registerButton.getScene().getWindow();
+            Stage stage = (Stage) backToLoginButton.getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    @FXML
-    private void switchToResetPassword() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/reset-password.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) resetPasswordButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
+} 
