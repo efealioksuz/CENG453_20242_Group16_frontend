@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.unofrontend.controllers.GameBoardController"
+            prefHeight="600.0" prefWidth="900.0">
+
+  
+    <HBox fx:id="playerHandBoxTop" spacing="8" alignment="CENTER"
+          AnchorPane.topAnchor="30" AnchorPane.leftAnchor="120" AnchorPane.rightAnchor="120"/>
+
+
+    <HBox fx:id="playerHandBoxBottom" spacing="8" alignment="CENTER"
+          AnchorPane.bottomAnchor="30" AnchorPane.leftAnchor="120" AnchorPane.rightAnchor="120"/>
+
+  
+    <VBox fx:id="opponentHandBoxLeft" spacing="8" alignment="TOP_CENTER"
+          AnchorPane.leftAnchor="30" AnchorPane.topAnchor="120" AnchorPane.bottomAnchor="120"/>
+
+    <VBox fx:id="opponentHandBoxRight" spacing="8" alignment="TOP_CENTER"
+          AnchorPane.rightAnchor="30" AnchorPane.topAnchor="120" AnchorPane.bottomAnchor="120"/>
+
+
+    <HBox fx:id="centerPileBox" spacing="12" alignment="CENTER"
+          AnchorPane.topAnchor="250" AnchorPane.leftAnchor="350" />
+
+    <VBox spacing="5" alignment="CENTER" AnchorPane.topAnchor="5" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <fx:include source="DirectionIndicator.fxml"/>
+        <fx:include source="TurnIndicator.fxml"/>
+    </VBox>
+
+    <Button text="Back to Login" onAction="#backToLogin" fx:id="backToLogin"
+            AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10"/>
+</AnchorPane> 

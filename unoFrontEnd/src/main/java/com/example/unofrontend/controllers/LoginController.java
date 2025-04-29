@@ -50,6 +50,16 @@ public class LoginController {
         if (result.equals("success")) {
             errorLabel.setText("Login successful!");
             errorLabel.setStyle("-fx-text-fill: green;");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/GameBoard.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) usernameField.getScene().getWindow();
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                stage.setMaximized(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             errorLabel.setText(result);
             errorLabel.setStyle("-fx-text-fill: red;");

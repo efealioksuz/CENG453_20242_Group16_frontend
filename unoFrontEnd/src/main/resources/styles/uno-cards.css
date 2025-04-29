@@ -1,0 +1,15 @@
+.uno-card {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-background-color: red;
+
+    -fx-border-color: black;
+    -fx-border-width: 2;
+    -fx-alignment: center;
+}
+
+.card-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
