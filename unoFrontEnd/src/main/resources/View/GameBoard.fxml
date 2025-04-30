@@ -4,29 +4,93 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.transform.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.transform.Rotate?>
-<?import javafx.scene.transform.Translate?>
+<?import javafx.scene.image.ImageView?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.unofrontend.controllers.GameBoardController" stylesheets="@../styles/uno-cards.css" styleClass="game-board">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" 
+    fx:controller="com.example.unofrontend.controllers.GameBoardController"
+    stylesheets="@../styles/uno-game-styles.css">
 
-    <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55" AnchorPane.leftAnchor="700" AnchorPane.rightAnchor="700" AnchorPane.topAnchor="50" />
-
-    <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-55" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400" />
-
-    <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-95" AnchorPane.leftAnchor="200" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
-        <padding>
-            <Insets top="0" right="0" bottom="0" left="0" />
-        </padding>
+    <!-- Player 3 (Top) -->
+    <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="700" AnchorPane.rightAnchor="700" AnchorPane.topAnchor="50">
+        <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55">
+            <VBox.margin>
+                <Insets bottom="10" />
+            </VBox.margin>
+        </HBox>
+        <Label fx:id="player3Label" text="PLAYER 3" styleClass="uno-player-label,ai-player"/>
     </VBox>
 
-    <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-95" AnchorPane.rightAnchor="200"  AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
-        <padding>
-            <Insets top="0" right="0" bottom="0" left="0" />
-        </padding>
+    <!-- Player 1 (Bottom/Current Player) -->
+    <VBox alignment="CENTER" spacing="10" AnchorPane.bottomAnchor="50" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400">
+        <Label fx:id="playerNameLabel" text="YOU" styleClass="uno-player-label,current-player">
+            <VBox.margin>
+                <Insets bottom="10" />
+            </VBox.margin>
+        </Label>
+        <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-55" />
     </VBox>
 
-    <HBox fx:id="centerPileBox" alignment="CENTER" spacing="12" AnchorPane.leftAnchor="500" AnchorPane.topAnchor="350" />
+    <!-- Player 2 (Left) -->
+    <StackPane AnchorPane.leftAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-100"/>
+        <Label fx:id="player2Label" text="PLAYER 2" styleClass="uno-player-label,ai-player">
+            <transforms>
+                <Rotate angle="90.0" />
+            </transforms>
+            <StackPane.margin>
+                <Insets left="120" />
+            </StackPane.margin>
+            <translateY>-60</translateY>
+            <translateX>80</translateX>
+        </Label>
+    </StackPane>
+
+    <!-- Player 4 (Right) -->
+    <StackPane AnchorPane.rightAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-100" />
+        <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player">
+            <transforms>
+                <Rotate angle="-90.0" />
+            </transforms>
+            <StackPane.margin>
+                <Insets right="120" />
+            </StackPane.margin>
+        </Label>
+    </StackPane>
+
+    <!-- Center area with draw pile and discard pile -->
+    <HBox alignment="CENTER" spacing="20" AnchorPane.leftAnchor="500" AnchorPane.rightAnchor="500" AnchorPane.topAnchor="350">
+        <!-- Draw pile -->
+        <StackPane fx:id="drawPileBox" styleClass="uno-card-back">
+            <ImageView fx:id="drawPileLogo" fitWidth="84" fitHeight="126" preserveRatio="true" 
+                      styleClass="uno-logo-image"/>
+            <StackPane.margin>
+                <Insets right="10"/>
+            </StackPane.margin>
+        </StackPane>
+        
+        <!-- Discard pile -->
+        <HBox fx:id="centerPileBox" alignment="CENTER" spacing="0">
+            <HBox.margin>
+                <Insets left="10"/>
+            </HBox.margin>
+        </HBox>
+    </HBox>
+
+    <!-- Game controls -->
+    <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="10" AnchorPane.bottomAnchor="10">
+        <Button fx:id="drawCardButton" text="Draw Card" onAction="#handleDrawCard" styleClass="game-button"/>
+        <Button fx:id="unoButton" text="UNO!" onAction="#handleUno" styleClass="game-button" visible="false"/>
+    </VBox>
+
+    <!-- Color selection buttons -->
+    <HBox fx:id="colorSelectionBox" alignment="CENTER" spacing="10" visible="false"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="400">
+        <Button text="Red" onAction="#handleColorSelection" userData="red" styleClass="color-button,red-button"/>
+        <Button text="Yellow" onAction="#handleColorSelection" userData="yellow" styleClass="color-button,yellow-button"/>
+        <Button text="Green" onAction="#handleColorSelection" userData="green" styleClass="color-button,green-button"/>
+        <Button text="Blue" onAction="#handleColorSelection" userData="blue" styleClass="color-button,blue-button"/>
+    </HBox>
 
     <VBox alignment="CENTER" spacing="5" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="5">
         <fx:include source="DirectionIndicator.fxml" />
@@ -34,61 +98,4 @@
     </VBox>
 
     <Button fx:id="backToLogin" onAction="#backToLogin" text="Back to Login" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" />
-
-    <VBox spacing="10" 
-          AnchorPane.topAnchor="20"
-          AnchorPane.rightAnchor="20">
-        <Label fx:id="currentPlayerLabel" 
-               text="Current Player: " 
-               styleClass="game-info-label"/>
-        <Label fx:id="currentColorLabel" 
-               text="Current Color: " 
-               styleClass="game-info-label"/>
-        <Label fx:id="currentDirectionLabel" 
-               text="Direction: Clockwise" 
-               styleClass="game-info-label"/>
-    </VBox>
-
-    <StackPane fx:id="drawPileBox" 
-               AnchorPane.topAnchor="350"
-               AnchorPane.leftAnchor="300">
-    </StackPane>
-
-    <HBox fx:id="colorSelectionBox" 
-          spacing="10" 
-          alignment="CENTER"
-          visible="false"
-          AnchorPane.bottomAnchor="20"
-          AnchorPane.leftAnchor="0"
-          AnchorPane.rightAnchor="0">
-        <Button text="Red" 
-                onAction="#handleColorSelection" 
-                userData="RED"
-                styleClass="color-button,red-button"/>
-        <Button text="Blue" 
-                onAction="#handleColorSelection" 
-                userData="BLUE"
-                styleClass="color-button,blue-button"/>
-        <Button text="Green" 
-                onAction="#handleColorSelection" 
-                userData="GREEN"
-                styleClass="color-button,green-button"/>
-        <Button text="Yellow" 
-                onAction="#handleColorSelection" 
-                userData="YELLOW"
-                styleClass="color-button,yellow-button"/>
-    </HBox>
-
-    <Button fx:id="drawCardButton" 
-            text="Draw Card" 
-            onAction="#handleDrawCard"
-            AnchorPane.bottomAnchor="20"
-            AnchorPane.rightAnchor="20"/>
-
-    <Button fx:id="unoButton" 
-            text="UNO!" 
-            onAction="#handleUno"
-            visible="false"
-            AnchorPane.bottomAnchor="20"
-            AnchorPane.rightAnchor="120"/>
 </AnchorPane>

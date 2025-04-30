@@ -4,6 +4,10 @@ import com.example.unofrontend.models.CardData;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 
 public class CardController {
     @FXML
@@ -16,6 +20,14 @@ public class CardController {
     private Label cardSymbol;
     @FXML
     private Label unoText;
+    @FXML
+    private ImageView wildImage;
+    @FXML
+    private ImageView unoLogoImage;
+
+    private static final Image WILD_IMAGE = new Image(CardController.class.getResourceAsStream("/images/unocolorpalette.png"));
+    private static final Image WILD_DRAW4_IMAGE = new Image(CardController.class.getResourceAsStream("/images/unodraw4.png"));
+    private static final Image UNO_LOGO_IMAGE = new Image(CardController.class.getResourceAsStream("/images/UNO_Logo.svg.png"));
 
     private CardData cardData;
 
@@ -26,9 +38,11 @@ public class CardController {
             "uno-card-red", "uno-card-blue", "uno-card-green", 
             "uno-card-yellow", "uno-card-black"
         );
-        
         cardPane.getStyleClass().add("uno-card-" + color.toLowerCase());
         
+        wildImage.setVisible(false);
+        unoLogoImage.setVisible(false);
+
         if (isActionCard(value)) {
             topLeftNumber.getStyleClass().add("card-special");
             bottomRightNumber.getStyleClass().add("card-special");
@@ -63,15 +77,38 @@ public class CardController {
 
     private void setActionSymbol(String value) {
         String symbol;
+        wildImage.setVisible(false);
+        
+        // Reset corner number size
+        topLeftNumber.getStyleClass().remove("corner-number-large");
+        bottomRightNumber.getStyleClass().remove("corner-number-large");
+        
         switch (value) {
-            case "Skip" -> symbol = "⊘";
-            case "Reverse" -> symbol = "↺";
+            case "Skip" -> {
+                symbol = "⊘";
+                topLeftNumber.getStyleClass().add("corner-number-large");
+                bottomRightNumber.getStyleClass().add("corner-number-large");
+            }
+            case "Reverse" -> {
+                symbol = "↺";
+                topLeftNumber.getStyleClass().add("corner-number-large");
+                bottomRightNumber.getStyleClass().add("corner-number-large");
+            }
             case "Draw Two" -> symbol = "+2";
-            case "Wild" -> symbol = "★";
-            case "Wild Draw Four" -> symbol = "+4";
+            case "Wild" -> {
+                symbol = "";
+                cardSymbol.setVisible(false);
+                wildImage.setImage(WILD_IMAGE);
+                wildImage.setVisible(true);
+            }
+            case "Wild Draw Four" -> {
+                symbol = "";
+                cardSymbol.setVisible(false);
+                wildImage.setImage(WILD_DRAW4_IMAGE);
+                wildImage.setVisible(true);
+            }
             default -> symbol = value;
         }
-        
         cardSymbol.setText(symbol);
         topLeftNumber.setText(symbol);
         bottomRightNumber.setText(symbol);
@@ -98,8 +135,11 @@ public class CardController {
         cardSymbol.setVisible(false);
         topLeftNumber.setVisible(false);
         bottomRightNumber.setVisible(false);
+        wildImage.setVisible(false);
+        unoText.setVisible(false); 
         
-        unoText.setVisible(true);
+        unoLogoImage.setImage(UNO_LOGO_IMAGE);
+        unoLogoImage.setVisible(true);
         
         cardPane.getStyleClass().removeAll(
             "uno-card-red", "uno-card-blue", "uno-card-green", 

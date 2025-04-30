@@ -2,7 +2,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:id="cardPane"
@@ -10,10 +12,16 @@
            styleClass="uno-card"
            stylesheets="@../styles/uno-cards.css">
     
+
     <VBox alignment="CENTER" spacing="10">
         <Label fx:id="cardSymbol" styleClass="card-symbol"/>
     </VBox>
     
+
+    <ImageView fx:id="wildImage" fitWidth="84" fitHeight="126" preserveRatio="false" 
+               visible="false" styleClass="wild-image"/>
+    
+
     <Label fx:id="topLeftNumber" styleClass="corner-number"
            StackPane.alignment="TOP_LEFT">
         <StackPane.margin>
@@ -29,4 +37,8 @@
     </Label>
 
     <Label fx:id="unoText" text="UNO" styleClass="uno-text" visible="false"/>
+
+
+    <ImageView fx:id="unoLogoImage" fitWidth="84" fitHeight="126" preserveRatio="true" 
+               visible="false" styleClass="uno-logo-image"/>
 </StackPane> 

@@ -13,6 +13,7 @@ public class GameState {
     private String currentColor;
     private int drawStack;
     private Random random;
+    private int direction = 1;
 
     public GameState() {
         this.deck = new ArrayList<>();
@@ -85,8 +86,29 @@ public class GameState {
     public boolean canPlayCard(CardData card) {
         CardData topCard = discardPile.get(discardPile.size() - 1);
         
+        if (drawStack > 0) {
+            if (topCard.value.equals("Draw Two")) {
+                return card.value.equals("Draw Two");
+            }
+            return false;
+        }
+        
         if (card.value.equals("Wild Draw Four")) {
-            return !hasPlayableCard(currentPlayerIndex);
+            List<CardData> playerHand = null;
+            for (int i = 0; i < playerHands.size(); i++) {
+                if (playerHands.get(i).contains(card)) {
+                    playerHand = playerHands.get(i);
+                    break;
+                }
+            }
+            if (playerHand != null) {
+                for (CardData handCard : playerHand) {
+                    if (handCard != card && (handCard.color.equals(currentColor) || handCard.value.equals(topCard.value))) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
         
         if (card.value.equals("Wild")) {
@@ -98,70 +120,105 @@ public class GameState {
 
     private boolean hasPlayableCard(int playerIndex) {
         for (CardData card : playerHands.get(playerIndex)) {
-            if (canPlayCard(card)) {
+            if (isValidPlay(card)) {
                 return true;
             }
         }
         return false;
     }
 
+    private boolean isValidPlay(CardData card) {
+        CardData topCard = discardPile.get(discardPile.size() - 1);
+        
+        if (drawStack > 0) {
+            if (topCard.value.equals("Draw Two")) {
+                return card.value.equals("Draw Two");
+            }
+            return false;
+        }
+        
+        if (card.value.equals("Wild Draw Four")) {
+            List<CardData> playerHand = null;
+            for (int i = 0; i < playerHands.size(); i++) {
+                if (playerHands.get(i).contains(card)) {
+                    playerHand = playerHands.get(i);
+                    break;
+                }
+            }
+            if (playerHand != null) {
+                for (CardData handCard : playerHand) {
+                    if (handCard != card && (handCard.color.equals(currentColor) || handCard.value.equals(topCard.value))) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        if (card.value.equals("Wild")) {
+            return true;
+        }
+        
+        return card.color.equals(currentColor) || card.value.equals(topCard.value);
+    }
+
     public void playCard(int playerIndex, CardData card, String chosenColor) {
-        if (!canPlayCard(card)) {
-            throw new IllegalStateException("Cannot play this card");
+        if (playerIndex != currentPlayerIndex) {
+            throw new IllegalStateException("Not your turn");
+        }
+
+        if (!isValidPlay(card)) {
+            throw new IllegalStateException("Invalid play");
         }
 
         playerHands.get(playerIndex).remove(card);
-        discardPile.add(card);
 
-        switch (card.value) {
-            case "Wild":
-            case "Wild Draw Four":
-                currentColor = chosenColor;
-                if (card.value.equals("Wild Draw Four")) {
-                    drawStack += 4;
-                }
-                break;
-            case "Reverse":
-                clockwise = !clockwise;
-                break;
-            case "Skip":
-                moveToNextPlayer();
-                break;
-            case "Draw Two":
-                drawStack += 2;
-                break;
-            default:
-                currentColor = card.color;
+        discardPile.add(card);
+        if (card.value.equals("Wild") || card.value.equals("Wild Draw Four")) {
+            currentColor = chosenColor;
+        } else {
+            currentColor = card.color;
         }
 
-        moveToNextPlayer();
-    }
-
-    private void moveToNextPlayer() {
-        if (clockwise) {
-            currentPlayerIndex = (currentPlayerIndex + 1) % 4;
+        if (card.value.equals("Skip")) {
+            currentPlayerIndex = (currentPlayerIndex + 2) % 4;
+        } else if (card.value.equals("Reverse")) {
+            direction *= -1;
+            currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
+        } else if (card.value.equals("Draw Two")) {
+            drawStack += 2;
+            currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
+        } else if (card.value.equals("Wild Draw Four")) {
+            drawStack = 4;
+            currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
         } else {
-            currentPlayerIndex = (currentPlayerIndex + 3) % 4;
+            currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
         }
     }
 
     public void drawCards(int playerIndex) {
-        int cardsToDraw = drawStack > 0 ? drawStack : 1;
-        
-        int maxAvailableCards = deck.size() + (discardPile.size() - 1);
-        
-        if (maxAvailableCards <= 0) {
+        if (drawStack > 0) {
+            int cardsToDraw = drawStack;
             drawStack = 0;
-            return;
+            
+            for (int i = 0; i < cardsToDraw; i++) {
+                CardData card = drawCard();
+                if (card != null) {
+                    playerHands.get(playerIndex).add(card);
+                }
+            }
+            
+            currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
+        } else {
+            CardData card = drawCard();
+            if (card != null) {
+                playerHands.get(playerIndex).add(card);
+            }
         }
-        
-        cardsToDraw = Math.min(cardsToDraw, maxAvailableCards);
-        
-        for (int i = 0; i < cardsToDraw; i++) {
-            playerHands.get(playerIndex).add(drawCard());
-        }
-        
-        drawStack = 0;
+    }
+
+    public void moveToNextPlayer() {
+        currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
     }
 
     public CardData getTopCard() {
