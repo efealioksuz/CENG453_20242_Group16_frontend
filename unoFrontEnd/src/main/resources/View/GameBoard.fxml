@@ -1,37 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Button?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.unofrontend.controllers.GameBoardController"
-            prefHeight="600.0" prefWidth="900.0">
 
-  
-    <HBox fx:id="playerHandBoxTop" spacing="8" alignment="CENTER"
-          AnchorPane.topAnchor="30" AnchorPane.leftAnchor="120" AnchorPane.rightAnchor="120"/>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.transform.*?>
+<?import javafx.geometry.Insets?>
 
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.unofrontend.controllers.GameBoardController">
 
-    <HBox fx:id="playerHandBoxBottom" spacing="8" alignment="CENTER"
-          AnchorPane.bottomAnchor="30" AnchorPane.leftAnchor="120" AnchorPane.rightAnchor="120"/>
+    <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55" AnchorPane.leftAnchor="700" AnchorPane.rightAnchor="700" AnchorPane.topAnchor="50" />
 
-  
-    <VBox fx:id="opponentHandBoxLeft" spacing="8" alignment="TOP_CENTER"
-          AnchorPane.leftAnchor="30" AnchorPane.topAnchor="120" AnchorPane.bottomAnchor="120"/>
+    <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-55" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400" />
 
-    <VBox fx:id="opponentHandBoxRight" spacing="8" alignment="TOP_CENTER"
-          AnchorPane.rightAnchor="30" AnchorPane.topAnchor="120" AnchorPane.bottomAnchor="120"/>
-
-
-    <HBox fx:id="centerPileBox" spacing="12" alignment="CENTER"
-          AnchorPane.topAnchor="250" AnchorPane.leftAnchor="350" />
-
-    <VBox spacing="5" alignment="CENTER" AnchorPane.topAnchor="5" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-        <fx:include source="DirectionIndicator.fxml"/>
-        <fx:include source="TurnIndicator.fxml"/>
+    <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-95" AnchorPane.leftAnchor="200" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <padding>
+            <Insets top="0" right="0" bottom="0" left="0" />
+        </padding>
     </VBox>
 
-    <Button text="Back to Login" onAction="#backToLogin" fx:id="backToLogin"
-            AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10"/>
-</AnchorPane> 
+    <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-95" AnchorPane.rightAnchor="200"  AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <padding>
+            <Insets top="0" right="0" bottom="0" left="0" />
+        </padding>
+    </VBox>
+
+    <HBox fx:id="centerPileBox" alignment="CENTER" spacing="12" AnchorPane.leftAnchor="500" AnchorPane.topAnchor="350" />
+
+    <VBox alignment="CENTER" spacing="5" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="5">
+        <fx:include source="DirectionIndicator.fxml" />
+        <fx:include source="TurnIndicator.fxml" />
+    </VBox>
+
+    <Button fx:id="backToLogin" onAction="#backToLogin" text="Back to Login" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" />
+</AnchorPane>

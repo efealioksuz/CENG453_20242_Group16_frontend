@@ -1,15 +1,121 @@
 .uno-card {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-background-color: red;
-
-    -fx-border-color: black;
+    -fx-min-width: 84px;
+    -fx-min-height: 126px;
+    -fx-max-width: 84px;
+    -fx-max-height: 126px;
+    
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
     -fx-border-width: 2;
+    -fx-border-color: white;
+    
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 7, 0, 0, 1);
+    
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.fanned-card {
+    -fx-translate-x: 0;
+    -fx-translate-y: 0;
+    -fx-rotate: 0;
+}
+
+.fanned-card-left {
+    -fx-translate-x: 0;
+    -fx-translate-y: 0;
+    -fx-rotate: 0;
+}
+
+.fanned-card-right {
+    -fx-translate-x: 0;
+    -fx-translate-y: 0;
+    -fx-rotate: 0;
+}
+
+.uno-card-red {
+    -fx-background-color: linear-gradient(to bottom right, #FF1744, #D50000);
+}
+
+.uno-card-blue {
+    -fx-background-color: linear-gradient(to bottom right, #2979FF, #0D47A1);
+}
+
+.uno-card-green {
+    -fx-background-color: linear-gradient(to bottom right, #00E676, #00C853);
+}
+
+.uno-card-yellow {
+    -fx-background-color: linear-gradient(to bottom right, #FFEB3B, #FBC02D);
+}
+
+.uno-card-black {
+    -fx-background-color: linear-gradient(to bottom right, #424242, #212121);
+}
+
+.corner-number {
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 2, 0, 0, 1);
+    -fx-padding: 0;
     -fx-alignment: center;
 }
 
-.card-value {
-    -fx-font-size: 32px;
+.card-symbol {
+    -fx-font-size: 50px;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 2, 0, 0, 1);
+    -fx-alignment: center;
+}
+
+.card-special {
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+}
+
+.uno-card-back {
+    -fx-background-color: #212121;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 2;
+    -fx-border-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 2);
+}
+
+.uno-text {
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 2, 0, 0, 1);
+}
+
+.uno-card:hover {
+    -fx-cursor: hand;
+}
+
+.uno-card:first-child {
+    -fx-translate-x: 0;
+}
+
+.uno-card.selected {
+    -fx-border-color: #FFD700;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(255,215,0,0.5), 15, 0, 0, 0);
+}
+
+.bottom-deck-card {
+    -fx-cursor: hand;
+}
+
+.bottom-deck-card:hover {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+    -fx-translate-y: -20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 3);
 }

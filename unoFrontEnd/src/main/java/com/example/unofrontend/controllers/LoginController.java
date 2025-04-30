@@ -59,13 +59,12 @@ public class LoginController {
             errorLabel.setText("Login successful!");
             errorLabel.setStyle("-fx-text-fill: green;");
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/GameBoard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/menu.fxml"));
                 loader.setControllerFactory(context::getBean);
                 Parent root = loader.load();
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 Scene scene = new Scene(root);
                 stage.setScene(scene);
-                stage.setMaximized(true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
