@@ -16,7 +16,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RegisterController {
 
     @FXML
@@ -34,7 +38,11 @@ public class RegisterController {
     @FXML
     private Button backToLoginButton;
 
-    private final ApiService apiService = new ApiService();
+    @Autowired
+    private ApiService apiService;
+
+    @Autowired
+    private ApplicationContext context;
 
     @FXML
     private void handleRegister() {
@@ -54,7 +62,6 @@ public class RegisterController {
             errorLabel.setText("Registration successful! Redirecting to login page...");
             errorLabel.setStyle("-fx-text-fill: green;");
             
-      
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -74,6 +81,7 @@ public class RegisterController {
     private void switchToLogin() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/login.fxml"));
+            loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
             Stage stage = (Stage) backToLoginButton.getScene().getWindow();
             stage.setScene(new Scene(root));

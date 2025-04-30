@@ -17,7 +17,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.springframework.stereotype.Component;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
+@Component
 public class GameBoardController {
     @FXML
     private Button backToLogin;
@@ -41,6 +45,12 @@ public class GameBoardController {
         List<CardData> deck = createDeck();
         Collections.shuffle(deck);
 
+        playerHandBoxTop.getChildren().clear();
+        playerHandBoxBottom.getChildren().clear();
+        opponentHandBoxLeft.getChildren().clear();
+        opponentHandBoxRight.getChildren().clear();
+        centerPileBox.getChildren().clear();
+
         List<CardData> player1 = new ArrayList<>();
         List<CardData> player2 = new ArrayList<>();
         List<CardData> player3 = new ArrayList<>();
@@ -51,6 +61,11 @@ public class GameBoardController {
             player3.add(deck.remove(0));
             player4.add(deck.remove(0));
         }
+
+        System.out.println("Player 1 cards: " + player1.size());
+        System.out.println("Player 2 cards: " + player2.size());
+        System.out.println("Player 3 cards: " + player3.size());
+        System.out.println("Player 4 cards: " + player4.size());
 
         addCardsToHand(playerHandBoxTop, player1);
         addCardsToHand(opponentHandBoxLeft, player2);
@@ -63,17 +78,63 @@ public class GameBoardController {
         centerPileBox.getChildren().add(createCardPane(openCard));
     }
 
-    private void addCardsToHand(Pane handBox, List<CardData> cards) {
-        for (CardData card : cards) {
-            handBox.getChildren().add(createCardPane(card));
+    public void initializeSinglePlayer() {
+        List<CardData> deck = createDeck();
+        Collections.shuffle(deck);
+
+        playerHandBoxTop.getChildren().clear();
+        playerHandBoxBottom.getChildren().clear();
+        opponentHandBoxLeft.getChildren().clear();
+        opponentHandBoxRight.getChildren().clear();
+        centerPileBox.getChildren().clear();
+
+        List<CardData> playerHand = new ArrayList<>();
+        List<CardData> aiHand1 = new ArrayList<>();
+        List<CardData> aiHand2 = new ArrayList<>();
+        List<CardData> aiHand3 = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            playerHand.add(deck.remove(0));
+            aiHand1.add(deck.remove(0));
+            aiHand2.add(deck.remove(0));
+            aiHand3.add(deck.remove(0));
         }
+
+        System.out.println("Player hand cards: " + playerHand.size());
+        System.out.println("AI 1 cards: " + aiHand1.size());
+        System.out.println("AI 2 cards: " + aiHand2.size());
+        System.out.println("AI 3 cards: " + aiHand3.size());
+
+        addCardsToHand(playerHandBoxBottom, playerHand);
+        addCardsToHand(playerHandBoxTop, aiHand1);
+        addCardsToHand(opponentHandBoxLeft, aiHand2);
+        addCardsToHand(opponentHandBoxRight, aiHand3);  
+
+        StackPane closedDeck = createClosedCard();
+        centerPileBox.getChildren().add(closedDeck);
+        CardData openCard = drawValidOpenCard(deck);
+        centerPileBox.getChildren().add(createCardPane(openCard));
+    }
+
+    private void addCardsToHand(Pane handBox, List<CardData> cards) {
+        System.out.println("Adding " + cards.size() + " cards to hand");
+        for (CardData card : cards) {
+            StackPane cardPane = createCardPane(card);
+            
+            if (handBox == playerHandBoxBottom) {
+                cardPane.getStyleClass().add("bottom-deck-card");
+            }
+            
+            handBox.getChildren().add(cardPane);
+        }
+        System.out.println("Hand now has " + handBox.getChildren().size() + " cards");
     }
 
     private StackPane createCardPane(CardData card) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/Card.fxml"));
             StackPane cardPane = loader.load();
-            com.example.unofrontend.controllers.CardController cardController = loader.getController();
+            CardController cardController = loader.getController();
             cardController.setCard(card.value, card.color);
             return cardPane;
         } catch (IOException e) {

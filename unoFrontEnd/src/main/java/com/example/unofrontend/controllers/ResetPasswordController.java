@@ -16,7 +16,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ResetPasswordController {
 
     @FXML
@@ -43,7 +47,11 @@ public class ResetPasswordController {
     @FXML
     private VBox tokenSection;
 
-    private final ApiService apiService = new ApiService();
+    @Autowired
+    private ApiService apiService;
+
+    @Autowired
+    private ApplicationContext context;
 
     @FXML
     private void initialize() {
@@ -111,6 +119,7 @@ public class ResetPasswordController {
     private void switchToLogin() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/login.fxml"));
+            loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
             Stage stage = (Stage) backToLoginButton.getScene().getWindow();
             stage.setScene(new Scene(root));
