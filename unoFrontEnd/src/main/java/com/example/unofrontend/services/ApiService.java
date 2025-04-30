@@ -1,8 +1,9 @@
 package com.example.unofrontend.services;
 
 import com.example.unofrontend.models.LoginRequest;
-import com.example.unofrontend.models.LoginResponseDto;
+import com.example.unofrontend.models.LoginResponse;
 import com.example.unofrontend.models.RegisterRequest;
+import com.example.unofrontend.models.Leaderboard;
 import com.example.unofrontend.session.SessionManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -20,6 +21,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.http.HttpMethod;
+import org.springframework.core.ParameterizedTypeReference;
+
+import java.util.List;
 
 @Service
 public class ApiService {
@@ -37,33 +41,28 @@ public class ApiService {
     public String login(LoginRequest loginRequest) {
         try {
             logger.info("Attempting login for user: {}", loginRequest.getUsername());
-            
             String url = baseUrl + "/auth/login";
             logger.info("Login URL: {}", url);
-            
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            
 
             MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
             formData.add("username", loginRequest.getUsername());
             formData.add("password", loginRequest.getPassword());
-            
 
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(formData, headers);
             logger.info("Request headers: {}", headers);
             logger.info("Request body: username={}, password=***", loginRequest.getUsername());
-            
 
-            ResponseEntity<LoginResponseDto> response = restTemplate.postForEntity(
+            ResponseEntity<LoginResponse> response = restTemplate.postForEntity(
                 url,
                 requestEntity,
-                LoginResponseDto.class
+                LoginResponse.class
             );
-            
+
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                LoginResponseDto loginResponse = response.getBody();
+                LoginResponse loginResponse = response.getBody();
                 // Store the token and username in session
                 SessionManager.setSession(loginResponse.getToken(), loginResponse.getUser().getUsername());
                 logger.info("Login successful for user: {}", loginResponse.getUser().getUsername());
@@ -180,6 +179,82 @@ public class ApiService {
         } catch (Exception e) {
             logger.error("Error during password reset", e);
             return "An error occurred while resetting password. Please try again.";
+        }
+    }
+
+    private HttpHeaders createAuthHeadersWithToken() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "*/*");
+        String token = SessionManager.getToken();
+        if (token != null && !token.isEmpty()) {
+            headers.setBearerAuth(token);
+        }
+        return headers;
+    }
+
+    public List<Leaderboard> getWeeklyLeaderboard() {
+        try {
+            logger.info("Fetching weekly leaderboard");
+            String url = baseUrl + "/weekly-leaderboard";
+            HttpEntity<?> requestEntity = new HttpEntity<>(createAuthHeadersWithToken());
+            ResponseEntity<List<Leaderboard>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<List<Leaderboard>>() {}
+            );
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                logger.info("Successfully retrieved weekly leaderboard");
+                return response.getBody();
+            }
+            throw new RuntimeException("Failed to fetch weekly leaderboard");
+        } catch (Exception e) {
+            logger.error("Error fetching weekly leaderboard", e);
+            throw new RuntimeException("Failed to fetch weekly leaderboard: " + e.getMessage());
+        }
+    }
+
+    public List<Leaderboard> getMonthlyLeaderboard() {
+        try {
+            logger.info("Fetching monthly leaderboard");
+            String url = baseUrl + "/monthly-leaderboard";
+            HttpEntity<?> requestEntity = new HttpEntity<>(createAuthHeadersWithToken());
+            ResponseEntity<List<Leaderboard>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<List<Leaderboard>>() {}
+            );
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                logger.info("Successfully retrieved monthly leaderboard");
+                return response.getBody();
+            }
+            throw new RuntimeException("Failed to fetch monthly leaderboard");
+        } catch (Exception e) {
+            logger.error("Error fetching monthly leaderboard", e);
+            throw new RuntimeException("Failed to fetch monthly leaderboard: " + e.getMessage());
+        }
+    }
+
+    public List<Leaderboard> getAllTimeLeaderboard() {
+        try {
+            logger.info("Fetching all-time leaderboard");
+            String url = baseUrl + "/all-time-leaderboard";
+            HttpEntity<?> requestEntity = new HttpEntity<>(createAuthHeadersWithToken());
+            ResponseEntity<List<Leaderboard>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<List<Leaderboard>>() {}
+            );
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                logger.info("Successfully retrieved all-time leaderboard");
+                return response.getBody();
+            }
+            throw new RuntimeException("Failed to fetch all-time leaderboard");
+        } catch (Exception e) {
+            logger.error("Error fetching all-time leaderboard", e);
+            throw new RuntimeException("Failed to fetch all-time leaderboard: " + e.getMessage());
         }
     }
 }
