@@ -4,8 +4,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.transform.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.transform.Rotate?>
+<?import javafx.scene.transform.Translate?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.unofrontend.controllers.GameBoardController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.unofrontend.controllers.GameBoardController" stylesheets="@../styles/uno-cards.css" styleClass="game-board">
 
     <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55" AnchorPane.leftAnchor="700" AnchorPane.rightAnchor="700" AnchorPane.topAnchor="50" />
 
@@ -31,4 +34,61 @@
     </VBox>
 
     <Button fx:id="backToLogin" onAction="#backToLogin" text="Back to Login" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" />
+
+    <VBox spacing="10" 
+          AnchorPane.topAnchor="20"
+          AnchorPane.rightAnchor="20">
+        <Label fx:id="currentPlayerLabel" 
+               text="Current Player: " 
+               styleClass="game-info-label"/>
+        <Label fx:id="currentColorLabel" 
+               text="Current Color: " 
+               styleClass="game-info-label"/>
+        <Label fx:id="currentDirectionLabel" 
+               text="Direction: Clockwise" 
+               styleClass="game-info-label"/>
+    </VBox>
+
+    <StackPane fx:id="drawPileBox" 
+               AnchorPane.topAnchor="350"
+               AnchorPane.leftAnchor="300">
+    </StackPane>
+
+    <HBox fx:id="colorSelectionBox" 
+          spacing="10" 
+          alignment="CENTER"
+          visible="false"
+          AnchorPane.bottomAnchor="20"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0">
+        <Button text="Red" 
+                onAction="#handleColorSelection" 
+                userData="RED"
+                styleClass="color-button,red-button"/>
+        <Button text="Blue" 
+                onAction="#handleColorSelection" 
+                userData="BLUE"
+                styleClass="color-button,blue-button"/>
+        <Button text="Green" 
+                onAction="#handleColorSelection" 
+                userData="GREEN"
+                styleClass="color-button,green-button"/>
+        <Button text="Yellow" 
+                onAction="#handleColorSelection" 
+                userData="YELLOW"
+                styleClass="color-button,yellow-button"/>
+    </HBox>
+
+    <Button fx:id="drawCardButton" 
+            text="Draw Card" 
+            onAction="#handleDrawCard"
+            AnchorPane.bottomAnchor="20"
+            AnchorPane.rightAnchor="20"/>
+
+    <Button fx:id="unoButton" 
+            text="UNO!" 
+            onAction="#handleUno"
+            visible="false"
+            AnchorPane.bottomAnchor="20"
+            AnchorPane.rightAnchor="120"/>
 </AnchorPane>
