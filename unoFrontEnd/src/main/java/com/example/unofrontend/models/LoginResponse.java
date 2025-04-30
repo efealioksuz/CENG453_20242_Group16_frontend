@@ -1,15 +1,14 @@
 package com.example.unofrontend.models;
 
-
 public class LoginResponse {
     private String token;
-    private UserDto user;
+    private User user;
 
     public String getToken() {
         return token;
     }
 
-    public UserDto getUser() {
+    public User getUser() {
         return user;
     }
 
