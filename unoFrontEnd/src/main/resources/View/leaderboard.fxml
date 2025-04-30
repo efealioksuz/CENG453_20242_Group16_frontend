@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" 
+    fx:controller="com.example.unofrontend.controllers.LeaderboardController"
+    stylesheets="@../styles/uno-game-styles.css">
+    
+    <VBox spacing="20" alignment="CENTER" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="20.0">
+       
+        <HBox spacing="20" alignment="CENTER">
+            <Label text="Leaderboard" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <ComboBox fx:id="periodComboBox" promptText="Select Period"/>
+        </HBox>
+
+      
+        <TableView fx:id="leaderboardTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="rankColumn" text="Rank" prefWidth="100"/>
+                <TableColumn fx:id="usernameColumn" text="Username" prefWidth="300"/>
+                <TableColumn fx:id="scoreColumn" text="Score" prefWidth="200"/>
+            </columns>
+        </TableView>
+
+       
+        <Button fx:id="backButton" text="Back to Menu" onAction="#handleBack" 
+                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px; -fx-min-width: 100;"/>
+    </VBox>
+</AnchorPane> 
