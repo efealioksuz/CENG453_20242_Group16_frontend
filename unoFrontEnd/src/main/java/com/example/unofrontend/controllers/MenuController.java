@@ -52,6 +52,7 @@ public class MenuController {
             
             GameBoardController gameBoardController = loader.getController();
             gameBoardController.initializeSinglePlayer();
+            gameBoardController.setPlayerName(com.example.unofrontend.session.SessionManager.getUsername());
             
             Stage stage = (Stage) singlePlayerButton.getScene().getWindow();
             Scene scene = new Scene(root);

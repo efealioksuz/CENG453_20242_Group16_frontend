@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -20,6 +21,7 @@ import javafx.stage.Stage;
 import org.springframework.stereotype.Component;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import javafx.geometry.Pos;
 
 @Component
 public class GameBoardController {
@@ -35,6 +37,14 @@ public class GameBoardController {
     private VBox opponentHandBoxRight;
     @FXML
     private HBox centerPileBox;
+    @FXML
+    private Label playerNameLabel;
+    @FXML
+    private Label player2Label;
+    @FXML
+    private Label player3Label;
+    @FXML
+    private Label player4Label;
 
     private static final String[] COLORS = {"red", "yellow", "green", "blue"};
     private static final String[] VALUES = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Skip", "Reverse", "Draw Two"};
@@ -144,11 +154,16 @@ public class GameBoardController {
     }
 
     private StackPane createClosedCard() {
-        StackPane closed = new StackPane();
-        closed.setMinWidth(100);
-        closed.setMinHeight(150);
-        closed.setStyle("-fx-background-color: black; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: black; -fx-border-width: 2;");
-        return closed;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/Card.fxml"));
+            StackPane closed = loader.load();
+            CardController cardController = loader.getController();
+            cardController.setCardBack();
+            return closed;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new StackPane();
+        }
     }
 
     private CardData drawValidOpenCard(List<CardData> deck) {
@@ -186,6 +201,12 @@ public class GameBoardController {
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setPlayerName(String username) {
+        if (playerNameLabel != null) {
+            playerNameLabel.setText(username);
         }
     }
 } 

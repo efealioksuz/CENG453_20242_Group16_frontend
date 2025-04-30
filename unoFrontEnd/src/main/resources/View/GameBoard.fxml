@@ -5,25 +5,59 @@
 <?import javafx.scene.transform.*?>
 <?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.unofrontend.controllers.GameBoardController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" 
+    fx:controller="com.example.unofrontend.controllers.GameBoardController"
+    stylesheets="@../styles/uno-game-styles.css">
 
-    <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55" AnchorPane.leftAnchor="700" AnchorPane.rightAnchor="700" AnchorPane.topAnchor="50" />
-
-    <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-55" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400" />
-
-    <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-95" AnchorPane.leftAnchor="200" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
-        <padding>
-            <Insets top="0" right="0" bottom="0" left="0" />
-        </padding>
+    <!-- Player 3 (Top) -->
+    <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="700" AnchorPane.rightAnchor="700" AnchorPane.topAnchor="50">
+        <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55">
+            <VBox.margin>
+                <Insets bottom="10" />
+            </VBox.margin>
+        </HBox>
+        <Label fx:id="player3Label" text="PLAYER 3" styleClass="uno-player-label,ai-player"/>
     </VBox>
 
-    <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-95" AnchorPane.rightAnchor="200"  AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
-        <padding>
-            <Insets top="0" right="0" bottom="0" left="0" />
-        </padding>
+    <!-- Player 1 (Bottom/Current Player) -->
+    <VBox alignment="CENTER" spacing="10" AnchorPane.bottomAnchor="50" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400">
+        <Label fx:id="playerNameLabel" text="YOU" styleClass="uno-player-label,current-player">
+            <VBox.margin>
+                <Insets bottom="10" />
+            </VBox.margin>
+        </Label>
+        <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-55" />
     </VBox>
 
-    <HBox fx:id="centerPileBox" alignment="CENTER" spacing="12" AnchorPane.leftAnchor="500" AnchorPane.topAnchor="350" />
+    <!-- Player 2 (Left) -->
+    <StackPane AnchorPane.leftAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-55"/>
+        <Label fx:id="player2Label" text="PLAYER 2" styleClass="uno-player-label,ai-player">
+            <transforms>
+                <Rotate angle="90.0" />
+            </transforms>
+            <StackPane.margin>
+                <Insets left="120" />
+            </StackPane.margin>
+            <translateY>-60</translateY>
+            <translateX>80</translateX>
+        </Label>
+    </StackPane>
+
+    <!-- Player 4 (Right) -->
+    <StackPane AnchorPane.rightAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-55" />
+        <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player">
+            <transforms>
+                <Rotate angle="-90.0" />
+            </transforms>
+            <StackPane.margin>
+                <Insets right="120" />
+            </StackPane.margin>
+        </Label>
+    </StackPane>
+
+    <HBox fx:id="centerPileBox" alignment="CENTER" spacing="12" AnchorPane.leftAnchor="550" AnchorPane.rightAnchor="550" AnchorPane.topAnchor="350" />
 
     <VBox alignment="CENTER" spacing="5" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="5">
         <fx:include source="DirectionIndicator.fxml" />
