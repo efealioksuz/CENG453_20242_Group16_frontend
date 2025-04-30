@@ -41,21 +41,21 @@ public class ApiService {
             String url = baseUrl + "/auth/login";
             logger.info("Login URL: {}", url);
             
-            // Set up headers for form data
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             
-            // Create form data
+
             MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
             formData.add("username", loginRequest.getUsername());
             formData.add("password", loginRequest.getPassword());
             
-            // Create request entity with form data
+
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(formData, headers);
             logger.info("Request headers: {}", headers);
             logger.info("Request body: username={}, password=***", loginRequest.getUsername());
             
-            // Make POST request with form data
+
             ResponseEntity<LoginResponseDto> response = restTemplate.postForEntity(
                 url,
                 requestEntity,
@@ -94,10 +94,10 @@ public class ApiService {
             
             logger.info("Registration URL: {}", url);
             
-            // Make POST request with query parameters
+
             ResponseEntity<String> response = restTemplate.postForEntity(
                 url,
-                null,  // No request body needed since we're using query parameters
+                null,
                 String.class
             );
             
@@ -124,18 +124,18 @@ public class ApiService {
             String url = baseUrl + "/auth/reset-password";
             logger.info("Password reset URL: {}", url);
             
-            // Create headers
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             
-            // Create form data
+
             MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
             formData.add("email", email);
             
-            // Create request entity
+
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(formData, headers);
             
-            // Make POST request using exchange
+
             ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.POST,
