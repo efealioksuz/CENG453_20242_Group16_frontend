@@ -1,5 +1,6 @@
 package com.example.unofrontend.controllers;
 
+import com.example.unofrontend.models.CardData;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
@@ -28,7 +29,11 @@ public class CardController {
     private static final Image WILD_DRAW4_IMAGE = new Image(CardController.class.getResourceAsStream("/images/unodraw4.png"));
     private static final Image UNO_LOGO_IMAGE = new Image(CardController.class.getResourceAsStream("/images/UNO_Logo.svg.png"));
 
+    private CardData cardData;
+
     public void setCard(String value, String color) {
+        this.cardData = new CardData(value, color);
+        
         cardPane.getStyleClass().removeAll(
             "uno-card-red", "uno-card-blue", "uno-card-green", 
             "uno-card-yellow", "uno-card-black"
@@ -53,6 +58,10 @@ public class CardController {
         cardSymbol.setVisible(true);
         topLeftNumber.setVisible(true);
         bottomRightNumber.setVisible(true);
+    }
+
+    public CardData getCardData() {
+        return cardData;
     }
 
     private void setCornerNumbers(String value) {
