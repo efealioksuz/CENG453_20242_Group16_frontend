@@ -29,7 +29,7 @@ import java.util.List;
 public class ApiService {
     private static final Logger logger = LoggerFactory.getLogger(ApiService.class);
 
-    @Value("${api.base-url:http://localhost:8080}")
+    @Value("${api.base-url:https://ceng453-20242-group16-backend.onrender.com}")
     private String baseUrl;
 
     @Autowired
@@ -162,20 +162,22 @@ public class ApiService {
         try {
             logger.info("Resetting password with token");
             
-            String url = baseUrl + "/auth/set-new-password";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            String url = baseUrl + "/auth/set-new-password" +
+                "?token=" + token +
+                "&newPassword=" + newPassword;
             
-            HttpEntity<String> request = new HttpEntity<>(newPassword, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                url,
+                null,  // No request body needed
+                String.class
+            );
             
-            String response = restTemplate.postForObject(url, request, String.class);
-            
-            if (response != null && response.equals("success")) {
+            if (response.getStatusCode() == HttpStatus.OK) {
                 logger.info("Password reset successful");
                 return "success";
             }
             
-            return response;
+            return response.getBody();
         } catch (Exception e) {
             logger.error("Error during password reset", e);
             return "An error occurred while resetting password. Please try again.";
