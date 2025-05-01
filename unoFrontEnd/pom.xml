@@ -178,6 +178,24 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <name>UnoGame</name>
+                    <appVersion>1.0.0</appVersion>
+                    <vendor>Group16</vendor>
+                    <destination>target/dist</destination>
+                    <module>com.example.unofrontend/com.example.unofrontend.UnoSpringBootApplication</module>
+                    <runtimeImage>target/UnoGame</runtimeImage>
+                    <winDirChooser>true</winDirChooser>
+                    <winMenu>true</winMenu>
+                    <winMenuGroup>UnoGame</winMenuGroup>
+                    <winShortcut>true</winShortcut>
+                    <icon>src/main/resources/images/uno-icon.ico</icon>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
