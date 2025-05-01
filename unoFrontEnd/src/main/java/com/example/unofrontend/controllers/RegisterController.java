@@ -61,7 +61,7 @@ public class RegisterController {
         if (result.equals("success")) {
             errorLabel.setText("Registration successful! Redirecting to login page...");
             errorLabel.setStyle("-fx-text-fill: green;");
-            
+      
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override

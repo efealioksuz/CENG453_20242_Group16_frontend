@@ -6,113 +6,134 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.shape.Rectangle?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" 
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" 
+    style="-fx-background-color: #1e3a5f;"
+    xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" 
     fx:controller="com.example.unofrontend.controllers.GameBoardController"
     stylesheets="@../styles/uno-game-styles.css">
 
-    <!-- Player 3 (Top) -->
     <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="500" AnchorPane.rightAnchor="500" AnchorPane.topAnchor="50">
-        <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-35">
+        <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55">
             <VBox.margin>
                 <Insets bottom="10" />
             </VBox.margin>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label fx:id="player3Label" text="PLAYER 3" styleClass="uno-player-label,ai-player"/>
+            <Label fx:id="player3UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
             <ImageView fx:id="topPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
-                <Image url="@../images/up-arrow.png" />
+                <image>
+                    <Image url="@../images/up-arrow.png"/>
+                </image>
             </ImageView>
         </HBox>
     </VBox>
 
-    <!-- Player 1 (Bottom/Current Player) -->
     <VBox alignment="CENTER" spacing="10" AnchorPane.bottomAnchor="50" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400">
         <HBox alignment="CENTER" spacing="10">
-            <Label fx:id="playerNameLabel" text="Player 1" styleClass="uno-player-label,current-player"/>
+            <Label fx:id="playerNameLabel" text="YOU" styleClass="uno-player-label,current-player"/>
+            <Label fx:id="playerUnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
             <ImageView fx:id="bottomPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
-                <Image url="@../images/bottom-arrow.png" />
+                <image>
+                    <Image url="@../images/bottom-arrow.png"/>
+                </image>
             </ImageView>
         </HBox>
-        <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-35" />
+        <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-55" />
     </VBox>
 
-    <!-- Player 2 (Left) -->
-    <StackPane AnchorPane.leftAnchor="50" AnchorPane.bottomAnchor="300" AnchorPane.topAnchor="300">
-        <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-70"/>
-        <HBox alignment="CENTER" spacing="10">
-            <StackPane.margin>
-                <Insets left="120" />
-            </StackPane.margin>
-            <translateY>-60</translateY>
-            <translateX>80</translateX>
-            <Label fx:id="player2Label" text="PLAYER 2" styleClass="uno-player-label,ai-player">
-                <transforms>
-                    <Rotate angle="90.0" />
-                </transforms>
-            </Label>
-            <ImageView fx:id="leftPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
-                <Image url="@../images/left-arrow.png" />
-                
-            </ImageView>
-        </HBox>
-    </StackPane>
-
-    <!-- Player 4 (Right) -->
-    <StackPane AnchorPane.rightAnchor="50" AnchorPane.bottomAnchor="300" AnchorPane.topAnchor="300">
-        <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-70" />
-        <HBox alignment="CENTER" spacing="10">
-            <StackPane.margin>
-                <Insets right="120" />
-            </StackPane.margin>
-            <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player">
-                <transforms>
-                    <Rotate angle="-90.0" />
-                </transforms>
-            </Label>
-            <ImageView fx:id="rightPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
-                <Image url="@../images/right-arrow.png" />
-               
-            </ImageView>
-        </HBox>
-    </StackPane>
-
-    <!-- Center area with draw pile and discard pile -->
-    <HBox alignment="CENTER" spacing="20" AnchorPane.leftAnchor="500" AnchorPane.rightAnchor="500" AnchorPane.topAnchor="350">
-        <!-- Draw pile -->
-        <StackPane fx:id="drawPileBox" styleClass="uno-card-back">
-            <ImageView fx:id="drawPileLogo" fitWidth="84" fitHeight="126" preserveRatio="true" 
-                      styleClass="uno-logo-image"/>
-            <StackPane.margin>
-                <Insets right="10"/>
-            </StackPane.margin>
+    <HBox alignment="CENTER" spacing="-50" AnchorPane.leftAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-100"/>
+        <StackPane>
+            <HBox alignment="CENTER" spacing="10" rotate="90">
+                <Label fx:id="player2Label" text="PLAYER 2" styleClass="uno-player-label,ai-player"/>
+                <Label fx:id="player2UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
+                <ImageView fx:id="leftPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
+                    <image>
+                        <Image url="@../images/bottom-arrow.png"/>
+                    </image>
+                </ImageView>
+            </HBox>
         </StackPane>
-        
-        <!-- Discard pile -->
-        <HBox fx:id="centerPileBox" alignment="CENTER" spacing="0">
-            <HBox.margin>
-                <Insets left="10"/>
-            </HBox.margin>
-        </HBox>
     </HBox>
 
-    <!-- Game controls -->
+    <HBox alignment="CENTER" spacing="-50" AnchorPane.rightAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
+        <StackPane>
+            <HBox alignment="CENTER" spacing="10" rotate="-90">
+                <ImageView fx:id="rightPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
+                    <image>
+                        <Image url="@../images/bottom-arrow.png"/>
+                    </image>
+                </ImageView>
+                <Label fx:id="player4UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
+                <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player"/>
+            </HBox>
+        </StackPane>
+        <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-100" />
+    </HBox>
+
+    <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="500" AnchorPane.rightAnchor="500" AnchorPane.topAnchor="350">
+        <StackPane>
+            <Rectangle fx:id="currentColorRect" width="50" height="50" styleClass="color-square"/>
+        </StackPane>
+
+        <HBox alignment="CENTER" spacing="20">
+            <StackPane fx:id="drawPileBox" styleClass="uno-card-back">
+                <ImageView fx:id="drawPileLogo" fitWidth="84" fitHeight="126" preserveRatio="true" 
+                          styleClass="uno-logo-image"/>
+                <StackPane.margin>
+                    <Insets right="10"/>
+                </StackPane.margin>
+            </StackPane>
+            <HBox fx:id="centerPileBox" alignment="CENTER" spacing="0">
+                <HBox.margin>
+                    <Insets left="10"/>
+                </HBox.margin>
+            </HBox>
+        </HBox>
+
+        <HBox fx:id="colorSelectionBox" alignment="CENTER" spacing="20" visible="false">
+            <StackPane styleClass="color-button-container" onMouseClicked="#handleColorSelection" userData="red">
+                <Rectangle width="50" height="50" styleClass="color-square,red-square"/>
+            </StackPane>
+            <StackPane styleClass="color-button-container" onMouseClicked="#handleColorSelection" userData="yellow">
+                <Rectangle width="50" height="50" styleClass="color-square,yellow-square"/>
+            </StackPane>
+            <StackPane styleClass="color-button-container" onMouseClicked="#handleColorSelection" userData="green">
+                <Rectangle width="50" height="50" styleClass="color-square,green-square"/>
+            </StackPane>
+            <StackPane styleClass="color-button-container" onMouseClicked="#handleColorSelection" userData="blue">
+                <Rectangle width="50" height="50" styleClass="color-square,blue-square"/>
+            </StackPane>
+        </HBox>
+    </VBox>
+
     <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="10" AnchorPane.bottomAnchor="10">
-        <Button fx:id="drawCardButton" text="Draw Card" onAction="#handleDrawCard" styleClass="game-button"/>
         <Button fx:id="unoButton" text="UNO!" onAction="#handleUno" styleClass="game-button" visible="false"/>
     </VBox>
 
-    <!-- Color selection buttons -->
-    <HBox fx:id="colorSelectionBox" alignment="CENTER" spacing="10" visible="false"
-          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="400">
-        <Button text="Red" onAction="#handleColorSelection" userData="red" styleClass="color-button,red-button"/>
-        <Button text="Yellow" onAction="#handleColorSelection" userData="yellow" styleClass="color-button,yellow-button"/>
-        <Button text="Green" onAction="#handleColorSelection" userData="green" styleClass="color-button,green-button"/>
-        <Button text="Blue" onAction="#handleColorSelection" userData="blue" styleClass="color-button,blue-button"/>
-    </HBox>
+    <VBox alignment="CENTER" spacing="5" AnchorPane.rightAnchor="200" AnchorPane.bottomAnchor="60">
+        <ImageView fx:id="directionIndicator" fitWidth="75" fitHeight="75" preserveRatio="true" styleClass="direction-arrow">
+            <image>
+                <Image url="@../images/rotate-right.png"/>
+            </image>
+        </ImageView>
+    </VBox>
 
-    <!-- Direction indicator -->
-    <fx:include fx:id="directionIndicator" source="DirectionIndicator.fxml" AnchorPane.rightAnchor="300" AnchorPane.bottomAnchor="200" />
-    
     <Button fx:id="backToLogin" onAction="#backToLogin" text="Back to Login" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" />
+
+    <StackPane fx:id="gameOverOverlay" visible="false" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" 
+               AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" styleClass="game-over-overlay">
+        
+        <VBox alignment="CENTER" spacing="20" styleClass="game-over-dialog">
+            <Label fx:id="gameOverMessage" styleClass="game-over-message"/>
+            <VBox alignment="CENTER" spacing="15">
+                <Button text="Play Again" onAction="#handlePlayAgain" styleClass="game-over-button"/>
+                <Button text="Back to Menu" onAction="#handleBackToGameMenu" styleClass="game-over-button"/>
+            </VBox>
+        </VBox>
+    </StackPane>
+
 </AnchorPane>

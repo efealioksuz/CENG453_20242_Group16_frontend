@@ -90,6 +90,9 @@ public class GameState {
             if (topCard.value.equals("Draw Two")) {
                 return card.value.equals("Draw Two");
             }
+            if (topCard.value.equals("Wild Draw Four")) {
+                return card.value.equals("Wild Draw Four");
+            }
             return false;
         }
         
@@ -103,7 +106,7 @@ public class GameState {
             }
             if (playerHand != null) {
                 for (CardData handCard : playerHand) {
-                    if (handCard != card && (handCard.color.equals(currentColor) || handCard.value.equals(topCard.value))) {
+                    if (handCard != card && handCard.color.equals(currentColor)) {
                         return false;
                     }
                 }
@@ -118,15 +121,6 @@ public class GameState {
         return card.color.equals(currentColor) || card.value.equals(topCard.value);
     }
 
-    private boolean hasPlayableCard(int playerIndex) {
-        for (CardData card : playerHands.get(playerIndex)) {
-            if (isValidPlay(card)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private boolean isValidPlay(CardData card) {
         CardData topCard = discardPile.get(discardPile.size() - 1);
         
@@ -134,22 +128,18 @@ public class GameState {
             if (topCard.value.equals("Draw Two")) {
                 return card.value.equals("Draw Two");
             }
+            if (topCard.value.equals("Wild Draw Four")) {
+                return card.value.equals("Wild Draw Four");
+            }
             return false;
         }
         
         if (card.value.equals("Wild Draw Four")) {
-            List<CardData> playerHand = null;
-            for (int i = 0; i < playerHands.size(); i++) {
-                if (playerHands.get(i).contains(card)) {
-                    playerHand = playerHands.get(i);
-                    break;
-                }
-            }
-            if (playerHand != null) {
-                for (CardData handCard : playerHand) {
-                    if (handCard != card && (handCard.color.equals(currentColor) || handCard.value.equals(topCard.value))) {
-                        return false;
-                    }
+            List<CardData> playerHand = playerHands.get(currentPlayerIndex);
+            
+            for (CardData handCard : playerHand) {
+                if (handCard.color.equals(currentColor)) {
+                    return false;
                 }
             }
             return true;
@@ -171,9 +161,8 @@ public class GameState {
             throw new IllegalStateException("Invalid play");
         }
 
-        playerHands.get(playerIndex).remove(card);
-
         discardPile.add(card);
+
         if (card.value.equals("Wild") || card.value.equals("Wild Draw Four")) {
             currentColor = chosenColor;
         } else {
@@ -185,6 +174,7 @@ public class GameState {
         } else if (card.value.equals("Reverse")) {
             direction *= -1;
             clockwise = direction == 1;
+            System.out.println("Direction changed to: " + (clockwise ? "clockwise" : "counter-clockwise"));
             currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
         } else if (card.value.equals("Draw Two")) {
             drawStack += 2;
@@ -239,7 +229,7 @@ public class GameState {
     }
 
     public boolean isClockwise() {
-        return clockwise;
+        return direction == 1;
     }
 
     public int getDrawStack() {

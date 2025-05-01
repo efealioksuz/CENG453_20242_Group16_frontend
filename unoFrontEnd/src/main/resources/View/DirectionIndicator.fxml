@@ -8,7 +8,7 @@
       fx:controller="com.example.unofrontend.controllers.DirectionIndicatorController"
       styleClass="direction-indicator">
     <ImageView fx:id="directionImage" fitWidth="75" fitHeight="75" preserveRatio="true"
-               styleClass="direction-arrow">
+               styleClass="direction-arrow" visible="true">
         <Image url="@../images/rotate-right.png" />
     </ImageView>
 </HBox> 
