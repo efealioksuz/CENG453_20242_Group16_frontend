@@ -12,4 +12,8 @@ public class TurnIndicatorController {
     public void setPlayerName(String name) {
         playerNameLabel.setText(name);
     }
+
+    public void setCurrentPlayer(String text) {
+        playerNameLabel.setText(text);
+    }
 } 
