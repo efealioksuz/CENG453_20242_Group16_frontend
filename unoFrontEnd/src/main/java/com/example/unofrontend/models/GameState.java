@@ -184,6 +184,7 @@ public class GameState {
             currentPlayerIndex = (currentPlayerIndex + 2) % 4;
         } else if (card.value.equals("Reverse")) {
             direction *= -1;
+            clockwise = direction == 1;
             currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
         } else if (card.value.equals("Draw Two")) {
             drawStack += 2;
@@ -247,5 +248,11 @@ public class GameState {
 
     public void setCurrentColor(String color) {
         this.currentColor = color;
+    }
+    
+    public void setCurrentPlayerIndex(int playerIndex) {
+        if (playerIndex >= 0 && playerIndex < 4) {
+            this.currentPlayerIndex = playerIndex;
+        }
     }
 } 

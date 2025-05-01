@@ -5,57 +5,76 @@
 <?import javafx.scene.transform.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
 <AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" 
     fx:controller="com.example.unofrontend.controllers.GameBoardController"
     stylesheets="@../styles/uno-game-styles.css">
 
     <!-- Player 3 (Top) -->
-    <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="700" AnchorPane.rightAnchor="700" AnchorPane.topAnchor="50">
-        <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55">
+    <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="500" AnchorPane.rightAnchor="500" AnchorPane.topAnchor="50">
+        <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-35">
             <VBox.margin>
                 <Insets bottom="10" />
             </VBox.margin>
         </HBox>
-        <Label fx:id="player3Label" text="PLAYER 3" styleClass="uno-player-label,ai-player"/>
+        <HBox alignment="CENTER" spacing="10">
+            <Label fx:id="player3Label" text="PLAYER 3" styleClass="uno-player-label,ai-player"/>
+            <ImageView fx:id="topPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
+                <Image url="@../images/up-arrow.png" />
+            </ImageView>
+        </HBox>
     </VBox>
 
     <!-- Player 1 (Bottom/Current Player) -->
     <VBox alignment="CENTER" spacing="10" AnchorPane.bottomAnchor="50" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400">
-        <Label fx:id="playerNameLabel" text="YOU" styleClass="uno-player-label,current-player">
-            <VBox.margin>
-                <Insets bottom="10" />
-            </VBox.margin>
-        </Label>
-        <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-55" />
+        <HBox alignment="CENTER" spacing="10">
+            <Label fx:id="playerNameLabel" text="Player 1" styleClass="uno-player-label,current-player"/>
+            <ImageView fx:id="bottomPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
+                <Image url="@../images/bottom-arrow.png" />
+            </ImageView>
+        </HBox>
+        <HBox fx:id="playerHandBoxBottom" alignment="CENTER" spacing="-35" />
     </VBox>
 
     <!-- Player 2 (Left) -->
-    <StackPane AnchorPane.leftAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
-        <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-100"/>
-        <Label fx:id="player2Label" text="PLAYER 2" styleClass="uno-player-label,ai-player">
-            <transforms>
-                <Rotate angle="90.0" />
-            </transforms>
+    <StackPane AnchorPane.leftAnchor="50" AnchorPane.bottomAnchor="300" AnchorPane.topAnchor="300">
+        <VBox fx:id="opponentHandBoxLeft" alignment="CENTER" spacing="-70"/>
+        <HBox alignment="CENTER" spacing="10">
             <StackPane.margin>
                 <Insets left="120" />
             </StackPane.margin>
             <translateY>-60</translateY>
             <translateX>80</translateX>
-        </Label>
+            <Label fx:id="player2Label" text="PLAYER 2" styleClass="uno-player-label,ai-player">
+                <transforms>
+                    <Rotate angle="90.0" />
+                </transforms>
+            </Label>
+            <ImageView fx:id="leftPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
+                <Image url="@../images/left-arrow.png" />
+                
+            </ImageView>
+        </HBox>
     </StackPane>
 
     <!-- Player 4 (Right) -->
-    <StackPane AnchorPane.rightAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.topAnchor="100">
-        <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-100" />
-        <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player">
-            <transforms>
-                <Rotate angle="-90.0" />
-            </transforms>
+    <StackPane AnchorPane.rightAnchor="50" AnchorPane.bottomAnchor="300" AnchorPane.topAnchor="300">
+        <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-70" />
+        <HBox alignment="CENTER" spacing="10">
             <StackPane.margin>
                 <Insets right="120" />
             </StackPane.margin>
-        </Label>
+            <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player">
+                <transforms>
+                    <Rotate angle="-90.0" />
+                </transforms>
+            </Label>
+            <ImageView fx:id="rightPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
+                <Image url="@../images/right-arrow.png" />
+               
+            </ImageView>
+        </HBox>
     </StackPane>
 
     <!-- Center area with draw pile and discard pile -->
@@ -92,10 +111,8 @@
         <Button text="Blue" onAction="#handleColorSelection" userData="blue" styleClass="color-button,blue-button"/>
     </HBox>
 
-    <VBox alignment="CENTER" spacing="5" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="5">
-        <fx:include source="DirectionIndicator.fxml" />
-        <fx:include source="TurnIndicator.fxml" />
-    </VBox>
-
+    <!-- Direction indicator -->
+    <fx:include fx:id="directionIndicator" source="DirectionIndicator.fxml" AnchorPane.rightAnchor="300" AnchorPane.bottomAnchor="200" />
+    
     <Button fx:id="backToLogin" onAction="#backToLogin" text="Back to Login" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" />
 </AnchorPane>

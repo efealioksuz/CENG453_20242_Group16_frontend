@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <HBox xmlns:fx="http://javafx.com/fxml"
       alignment="CENTER" spacing="10"
       fx:id="directionBox"
-      fx:controller="com.example.unofrontend.controllers.DirectionIndicatorController">
-    <Label fx:id="directionLabel" text="Direction: Clockwise" />
+      fx:controller="com.example.unofrontend.controllers.DirectionIndicatorController"
+      styleClass="direction-indicator">
+    <ImageView fx:id="directionImage" fitWidth="75" fitHeight="75" preserveRatio="true"
+               styleClass="direction-arrow">
+        <Image url="@../images/rotate-right.png" />
+    </ImageView>
 </HBox> 

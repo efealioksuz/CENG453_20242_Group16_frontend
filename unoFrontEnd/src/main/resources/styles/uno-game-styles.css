@@ -21,3 +21,28 @@
 .corner-number-large {
     -fx-font-size: 22px !important;
 }
+
+
+.turn-arrow {
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 0, 0.8), 10, 0.8, 0, 0);
+    -fx-opacity: 1.0 !important;
+    -fx-visibility: visible !important;
+}
+
+
+.direction-indicator {
+    -fx-padding: 10px;
+    -fx-background-radius: 10px;
+}
+
+.direction-arrow {
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 0, 0.8), 10, 0.8, 0, 0);
+    -fx-opacity: 1.0 !important;
+    -fx-visibility: visible !important;
+}
+
+
+ImageView.turn-arrow {
+    -fx-opacity: 1.0 !important;
+    -fx-visibility: visible !important;
+}
