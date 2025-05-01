@@ -33,3 +33,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/.idea/compiler.xml
+/.idea/compiler.xml

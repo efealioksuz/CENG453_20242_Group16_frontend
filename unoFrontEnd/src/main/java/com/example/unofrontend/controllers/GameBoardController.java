@@ -58,12 +58,13 @@ public class GameBoardController {
     @FXML
     private Button unoButton;
     @FXML
-    private TurnIndicatorController turnIndicatorController;
+    private DirectionIndicatorController directionIndicatorController;
     @FXML
     private StackPane drawPileBox;
     @FXML
     private Rectangle currentColorRect;
     @FXML
+
     private StackPane gameOverOverlay;
     @FXML
     private Label gameOverMessage;
@@ -75,6 +76,20 @@ public class GameBoardController {
     private Label player3UnoIndicator;
     @FXML
     private Label player4UnoIndicator;
+
+    @FXML
+    private ImageView topPlayerArrow;
+    @FXML
+    private ImageView bottomPlayerArrow;
+    @FXML
+    private ImageView leftPlayerArrow;
+    @FXML
+    private ImageView rightPlayerArrow;
+    @FXML
+    private Label playerNameLabel;
+
+    @FXML
+    private ImageView directionIndicator;
 
     private static final String[] COLORS = {"red", "yellow", "green", "blue"};
     private static final String[] VALUES = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Skip", "Reverse", "Draw Two"};
@@ -93,6 +108,7 @@ public class GameBoardController {
     private GameState gameState;
     private AIPlayer aiPlayer;
     private boolean isPlayerTurn;
+    private String playerName = "Player 1";
 
     @FXML
     private ImageView drawPileLogo;
@@ -100,6 +116,9 @@ public class GameBoardController {
     private CardData pendingWildCard = null;
 
     private final ApplicationContext context;
+
+    private Image clockwiseImage;
+    private Image counterClockwiseImage;
 
     public GameBoardController(ApplicationContext context) {
         this.context = context;
@@ -109,6 +128,24 @@ public class GameBoardController {
     public void initialize() {
         System.out.println("Game board initialized");
         try {
+            clockwiseImage = new Image(getClass().getResourceAsStream("/images/rotate-right.png"));
+            counterClockwiseImage = new Image(getClass().getResourceAsStream("/images/rotate-left.png"));
+            
+            System.out.println("Direction images loaded: " + 
+                             "clockwise=" + (clockwiseImage != null && !clockwiseImage.isError()) + 
+                             ", counter-clockwise=" + (counterClockwiseImage != null && !counterClockwiseImage.isError()));
+
+            if (clockwiseImage == null || counterClockwiseImage == null || 
+                clockwiseImage.isError() || counterClockwiseImage.isError()) {
+                System.err.println("Failed to load direction images");
+                if (clockwiseImage != null && clockwiseImage.isError()) {
+                    System.err.println("Clockwise image error: " + clockwiseImage.getException());
+                }
+                if (counterClockwiseImage != null && counterClockwiseImage.isError()) {
+                    System.err.println("Counter-clockwise image error: " + counterClockwiseImage.getException());
+                }
+            }
+
             if (drawPileLogo != null && UNO_LOGO != null) {
                 drawPileLogo.setImage(UNO_LOGO);
                 drawPileLogo.setFitWidth(84);
@@ -120,9 +157,19 @@ public class GameBoardController {
             }
             
             drawPileBox.setOnMouseClicked(event -> handleDrawPileClick());
+            loadArrowImages();
+
+            // Initialize direction indicator
+            if (directionIndicator != null) {
+                directionIndicator.setImage(clockwiseImage);
+                System.out.println("Direction indicator initialized");
+            } else {
+                System.err.println("Direction indicator is NULL");
+            }
             
         } catch (Exception e) {
-            System.err.println("Error setting UNO logo: " + e.getMessage());
+            System.err.println("Error in initialize: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -138,6 +185,10 @@ public class GameBoardController {
         
         gameState.startGame();
         
+        if (playerNameLabel != null) {
+            playerNameLabel.setText(playerName);
+        }
+        
         addCardsToHand(gameState.getPlayerHand(0), playerHandBoxBottom); 
         addCardsToHand(gameState.getPlayerHand(2), playerHandBoxTop);
         addCardsToHand(gameState.getPlayerHand(1), opponentHandBoxLeft);
@@ -152,6 +203,11 @@ public class GameBoardController {
         drawPileBox.getChildren().add(drawPile);
         
         updateCurrentColorLabel();
+        updateDirectionIndicator();
+        
+        gameState.setCurrentPlayerIndex(0);
+        isPlayerTurn = true;
+        forceUpdateArrows();
     }
 
     private void updateCurrentColorLabel() {
@@ -182,9 +238,19 @@ public class GameBoardController {
                 playerHand.add(drawnCard);
                 refreshPlayerHand();
                 
-                if (!gameState.canPlayCard(drawnCard)) {
+                // Check if the drawn card can be played
+                if (drawnCard.value.equals("Wild") || 
+                    drawnCard.value.equals("Wild Draw Four") || 
+                    drawnCard.color.equals(gameState.getCurrentColor()) || 
+                    drawnCard.value.equals(gameState.getTopCard().value)) {
+                    
+                    // Let the player decide if they want to play the drawn card
+                    System.out.println("Drew a playable card: " + drawnCard.value + " of " + drawnCard.color);
+                } else {
+                    // If card cannot be played, move to next player
                     gameState.moveToNextPlayer();
                     isPlayerTurn = false;
+                    forceUpdateArrows();
                     playAITurns();
                 }
             }
@@ -224,22 +290,23 @@ public class GameBoardController {
     }
 
     private void playAITurns() {
-        System.out.println("Starting AI turns");
+
         int nextPlayerIndex = gameState.getCurrentPlayerIndex();
+        
+       
+        
         playNextAITurn(nextPlayerIndex);
     }
 
     private void playNextAITurn(int playerIndex) {
         if (playerIndex >= 4 || playerIndex == 0) {
             isPlayerTurn = true;
-            if (turnIndicatorController != null) {
-                turnIndicatorController.setCurrentPlayer("Your Turn");
-            }
             System.out.println("AI turns completed, returning control to player");
             
             if (gameState.getDrawStack() > 0) {
                 checkAndHandleForcedDraws();
             }
+            forceUpdateArrows();
             return;
         }
 
@@ -250,25 +317,22 @@ public class GameBoardController {
             case 3: playerName = "Player 4"; break;
             default: playerName = "Unknown Player";
         }
-        if (turnIndicatorController != null) {
-            turnIndicatorController.setCurrentPlayer(playerName + "'s Turn");
-        }
+
+        String logPlayerName = "Player " + (playerIndex + 1);
+        
+        forceUpdateArrows();
 
         Timeline timeline = new Timeline();
-        timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1.0), e -> {
+        timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1.5), e -> {
             List<CardData> aiHand = gameState.getPlayerHand(playerIndex);
-            
+        
             if (gameState.getDrawStack() > 0) {
-                System.out.println(playerName + " needs to draw " + gameState.getDrawStack() + " cards");
-
                 CardData drawCard = aiPlayer.chooseDrawCardToPlay(aiHand, gameState);
                 if (drawCard != null) {
-                    System.out.println(playerName + " is playing: " + drawCard.value + " of " + drawCard.color);
-                    
                     String chosenColor = null;
                     if (drawCard.value.equals("Wild") || drawCard.value.equals("Wild Draw Four")) {
                         chosenColor = aiPlayer.chooseColor(aiHand);
-                        System.out.println(playerName + " chose color: " + chosenColor);
+                        System.out.println(logPlayerName + " chose color: " + chosenColor);
                     } else {
                         chosenColor = drawCard.color;
                     }
@@ -283,20 +347,20 @@ public class GameBoardController {
                     }
                     
                     if (cardIndex != -1) {
+                        System.out.println(logPlayerName + " played: " + drawCard.value + " of " + drawCard.color);
                         aiHand.remove(cardIndex);
                         CardData cardToPlay = new CardData(drawCard.value, drawCard.color);
-                        gameState.playCard(playerIndex, cardToPlay, chosenColor);
-                        
                         Pane handBox = (playerIndex == 1) ? opponentHandBoxLeft : 
                                      (playerIndex == 2) ? playerHandBoxTop : opponentHandBoxRight;
                         handBox.getChildren().clear();
                         addCardsToHand(aiHand, handBox);
-                        
+                        gameState.playCard(playerIndex, cardToPlay, chosenColor);
                         addCardToCenterPile(cardToPlay);
                         updateCurrentColorLabel();
+                        updateDirectionIndicator();
 
                         if (aiHand.isEmpty()) {
-                            showGameOver("Game Over! " + playerName + " Won!");
+                            showGameOver("Game Over! " + logPlayerName + " Won!");
                             return;
                         }
                     }
@@ -309,7 +373,6 @@ public class GameBoardController {
                                  (playerIndex == 2) ? playerHandBoxTop : opponentHandBoxRight;
                     handBox.getChildren().clear();
                     addCardsToHand(aiHand, handBox);
-                    
                     playNextAITurn(gameState.getCurrentPlayerIndex());
                 }
                 return;
@@ -318,12 +381,10 @@ public class GameBoardController {
             CardData chosenCard = aiPlayer.chooseCardToPlay(aiHand, gameState);
             
             if (chosenCard != null) {
-                System.out.println(playerName + " is playing: " + chosenCard.value + " of " + chosenCard.color);
-                
                 String chosenColor = null;
                 if (chosenCard.value.equals("Wild") || chosenCard.value.equals("Wild Draw Four")) {
                     chosenColor = aiPlayer.chooseColor(aiHand);
-                    System.out.println(playerName + " chose color: " + chosenColor);
+                    System.out.println(logPlayerName + " chose color: " + chosenColor);
                 } else {
                     chosenColor = chosenCard.color;
                 }
@@ -338,78 +399,79 @@ public class GameBoardController {
                 }
                 
                 if (cardIndex != -1) {
+                    System.out.println(logPlayerName + " played: " + chosenCard.value + " of " + chosenCard.color);
                     aiHand.remove(cardIndex);
                     CardData cardToPlay = new CardData(chosenCard.value, chosenCard.color);
-                    gameState.playCard(playerIndex, cardToPlay, chosenColor);
-
                     Pane handBox = (playerIndex == 1) ? opponentHandBoxLeft : 
                                  (playerIndex == 2) ? playerHandBoxTop : opponentHandBoxRight;
                     handBox.getChildren().clear();
                     addCardsToHand(aiHand, handBox);
-                
+                    gameState.playCard(playerIndex, cardToPlay, chosenColor);
                     addCardToCenterPile(cardToPlay);
                     updateCurrentColorLabel();
+                    updateDirectionIndicator();
 
                     if (aiHand.isEmpty()) {
-                        showGameOver("Game Over! " + playerName + " Won!");
+                        showGameOver("Game Over! " + logPlayerName + " Won!");
                         return;
                     }
                 }
 
                 playNextAITurn(gameState.getCurrentPlayerIndex());
             } else {
-                System.out.println(playerName + " has no playable cards, drawing one card");
+                System.out.println(logPlayerName + " has no playable cards, drawing one card");
                 CardData drawnCard = gameState.drawCard();
                 if (drawnCard != null) {
-                    System.out.println(playerName + " drew: " + drawnCard.value + " of " + drawnCard.color);
+                    System.out.println(logPlayerName + " drew: " + drawnCard.value + " of " + drawnCard.color);
                     aiHand.add(drawnCard);
                     
                     Pane handBox = (playerIndex == 1) ? opponentHandBoxLeft : 
                                  (playerIndex == 2) ? playerHandBoxTop : opponentHandBoxRight;
                     handBox.getChildren().clear();
                     addCardsToHand(aiHand, handBox);
-                    
-                    if (gameState.canPlayCard(drawnCard)) {
+
+                    CardData cardToPlay = aiPlayer.chooseCardAfterDraw(drawnCard, gameState);
+                    if (cardToPlay != null) {
                         Timeline showDrawnCardTimeline = new Timeline();
                         showDrawnCardTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1.5), showEvent -> {
                             String chosenColor = null;
-                            if (drawnCard.value.equals("Wild") || drawnCard.value.equals("Wild Draw Four")) {
+                            if (cardToPlay.value.equals("Wild") || cardToPlay.value.equals("Wild Draw Four")) {
                                 chosenColor = aiPlayer.chooseColor(aiHand);
-                                System.out.println(playerName + " chose color: " + chosenColor);
+                                System.out.println(logPlayerName + " chose color: " + chosenColor);
                             } else {
-                                chosenColor = drawnCard.color;
+                                chosenColor = cardToPlay.color;
                             }
                             
                             int cardIndex = -1;
                             for (int i = 0; i < aiHand.size(); i++) {
                                 CardData card = aiHand.get(i);
-                                if (card.value.equals(drawnCard.value) && card.color.equals(drawnCard.color)) {
+                                if (card.value.equals(cardToPlay.value) && card.color.equals(cardToPlay.color)) {
                                     cardIndex = i;
                                     break;
                                 }
                             }
                             
                             if (cardIndex != -1) {
+                                System.out.println(logPlayerName + " played drawn card: " + cardToPlay.value + " of " + cardToPlay.color);
                                 aiHand.remove(cardIndex);
-                                CardData cardToPlay = new CardData(drawnCard.value, drawnCard.color);
-                                gameState.playCard(playerIndex, cardToPlay, chosenColor);
-                                
                                 handBox.getChildren().clear();
                                 addCardsToHand(aiHand, handBox);
-                                
+                                gameState.playCard(playerIndex, cardToPlay, chosenColor);
                                 addCardToCenterPile(cardToPlay);
                                 updateCurrentColorLabel();
+                                updateDirectionIndicator();
 
                                 if (aiHand.isEmpty()) {
-                                    showGameOver("Game Over! " + playerName + " Won!");
+                                    showGameOver("Game Over! " + logPlayerName + " Won!");
                                     return;
                                 }
                             }
-
+                            
                             playNextAITurn(gameState.getCurrentPlayerIndex());
                         }));
                         showDrawnCardTimeline.play();
                     } else {
+                        System.out.println(logPlayerName + " could not play the drawn card");
                         gameState.moveToNextPlayer();
                         playNextAITurn(gameState.getCurrentPlayerIndex());
                     }
@@ -432,6 +494,7 @@ public class GameBoardController {
                 playerHandBoxBottom.getChildren().clear();
                 addCardsToHand(gameState.getPlayerHand(0), playerHandBoxBottom);
                 isPlayerTurn = false;
+                forceUpdateArrows();
                 playAITurns();
                 return;
             }
@@ -451,6 +514,7 @@ public class GameBoardController {
                     playerHandBoxBottom.getChildren().clear();
                     addCardsToHand(gameState.getPlayerHand(0), playerHandBoxBottom);
                     isPlayerTurn = false;
+                    forceUpdateArrows();
                     playAITurns();
                 }
             }
@@ -477,6 +541,7 @@ public class GameBoardController {
             handBox.getChildren().add(cardPane);
             System.out.println("Added card: " + card.value + " of " + card.color + " at index " + i);
         }
+
         System.out.println("Hand now has " + handBox.getChildren().size() + " cards");
 
         int playerIndex = -1;
@@ -601,6 +666,7 @@ public class GameBoardController {
                 refreshPlayerHand();
                 addCardToCenterPile(cardToPlay);
                 updateCurrentColorLabel();
+                updateDirectionIndicator();
                 
                 if (gameState.getPlayerHand(0).isEmpty()) {
                     showGameOver("Congratulations! You Won! 🎉");
@@ -608,6 +674,7 @@ public class GameBoardController {
                 }
                 
                 isPlayerTurn = false;
+                forceUpdateArrows();
                 playAITurns();
             } else {
                 System.out.println("Card at index " + cardIndex + " doesn't match the card being played!");
@@ -635,8 +702,112 @@ public class GameBoardController {
 
     @FXML
     public void setPlayerName(String name) {
-        if (turnIndicatorController != null) {
-            turnIndicatorController.setPlayerName(name);
+        playerName = name;
+        playerNameLabel.setText(playerName);
+    }
+
+    private void updateDirectionIndicator() {
+        System.out.println("updateDirectionIndicator called, clockwise = " + gameState.isClockwise());
+        if (directionIndicator != null && clockwiseImage != null && counterClockwiseImage != null) {
+            boolean isClockwise = gameState.isClockwise();
+            directionIndicator.setImage(isClockwise ? clockwiseImage : counterClockwiseImage);
+            System.out.println("Direction indicator updated to: " + (isClockwise ? "clockwise" : "counter-clockwise"));
+        } else {
+            System.err.println("ERROR: directionIndicator or direction images are NULL");
+        }
+    }
+
+  
+    private void forceUpdateArrows() {
+        Platform.runLater(() -> {
+            try {
+                hideAllArrows();
+                
+                int currentPlayerIndex = gameState.getCurrentPlayerIndex();
+                
+                System.out.println("player " + currentPlayerIndex + ", isPlayerTurn: " + isPlayerTurn);
+                
+                if (currentPlayerIndex == 0 && !isPlayerTurn) {
+                    isPlayerTurn = true;
+                } 
+                else if (currentPlayerIndex != 0 && isPlayerTurn) {
+                    isPlayerTurn = false;
+                }
+                
+                switch (currentPlayerIndex) {
+                    case 0:
+                        if (bottomPlayerArrow != null) {
+                            bottomPlayerArrow.setVisible(true);
+                            bottomPlayerArrow.setOpacity(1.0);
+                        }
+                        break;
+                    case 1: 
+                        if (leftPlayerArrow != null) {
+                            leftPlayerArrow.setVisible(true);
+                            leftPlayerArrow.setOpacity(1.0);
+                        }
+                        break;
+                    case 2: 
+                        if (topPlayerArrow != null) {
+                            topPlayerArrow.setVisible(true);
+                            topPlayerArrow.setOpacity(1.0);
+                        }
+                        break;
+                    case 3: 
+                        if (rightPlayerArrow != null) {
+                            rightPlayerArrow.setVisible(true);
+                            rightPlayerArrow.setOpacity(1.0);
+                        }
+                        break;
+                }
+            } catch (Exception e) {
+                System.err.println("arrow update error: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+    }
+    
+    private void hideAllArrows() {
+        if (topPlayerArrow != null) {
+            topPlayerArrow.setVisible(false);
+        }
+        if (bottomPlayerArrow != null) {
+            bottomPlayerArrow.setVisible(false);
+        }
+        if (leftPlayerArrow != null) {
+            leftPlayerArrow.setVisible(false);
+        }
+        if (rightPlayerArrow != null) {
+            rightPlayerArrow.setVisible(false);
+        }
+    }
+    
+    private void loadArrowImages() {
+        try {
+            if (topPlayerArrow != null) {
+                topPlayerArrow.setPreserveRatio(true);
+                topPlayerArrow.getStyleClass().add("turn-arrow");
+            }
+            
+            if (bottomPlayerArrow != null) {
+                bottomPlayerArrow.setPreserveRatio(true);
+                bottomPlayerArrow.getStyleClass().add("turn-arrow");
+            }
+            
+            if (leftPlayerArrow != null) {
+                leftPlayerArrow.setPreserveRatio(true);
+                leftPlayerArrow.getStyleClass().add("turn-arrow");
+            }
+            
+            if (rightPlayerArrow != null) {
+                rightPlayerArrow.setPreserveRatio(true);
+                rightPlayerArrow.getStyleClass().add("turn-arrow");
+            }
+            
+            hideAllArrows();
+        } catch (Exception e) {
+            System.err.println("Error setting up arrows: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -13,30 +13,28 @@ public class AIPlayer {
     }
 
     public CardData chooseCardToPlay(List<CardData> hand, GameState gameState) {
-        List<CardData> playableCards = new ArrayList<>();
+        List<CardData> matchingCards = new ArrayList<>();
+        CardData wildDrawFour = null;
 
         for (CardData card : hand) {
-            if (gameState.canPlayCard(card)) {
-                playableCards.add(card);
+            if (card.value.equals("Wild Draw Four")) {
+                wildDrawFour = card;
+            } else if (card.value.equals("Wild") || 
+                      card.color.equals(gameState.getCurrentColor()) || 
+                      card.value.equals(gameState.getTopCard().value)) {
+                matchingCards.add(card);
             }
         }
         
-        if (playableCards.isEmpty()) {
-            return null;
+        if (!matchingCards.isEmpty()) {
+            return matchingCards.get(random.nextInt(matchingCards.size()));
         }
         
-        List<CardData> matchingColorCards = new ArrayList<>();
-        for (CardData card : playableCards) {
-            if (card.color.equals(gameState.getCurrentColor())) {
-                matchingColorCards.add(card);
-            }
+        if (wildDrawFour != null) {
+            return wildDrawFour;
         }
         
-        if (!matchingColorCards.isEmpty()) {
-            return matchingColorCards.get(random.nextInt(matchingColorCards.size()));
-        }
-        
-        return playableCards.get(random.nextInt(playableCards.size()));
+        return null;
     }
 
     public String chooseColor(List<CardData> hand) {
@@ -77,6 +75,16 @@ public class AIPlayer {
             }
         }
 
+        return null;
+    }
+
+    public CardData chooseCardAfterDraw(CardData drawnCard, GameState gameState) {
+        if (drawnCard.value.equals("Wild") || 
+            drawnCard.value.equals("Wild Draw Four") || 
+            drawnCard.color.equals(gameState.getCurrentColor()) || 
+            drawnCard.value.equals(gameState.getTopCard().value)) {
+            return drawnCard;
+        }
         return null;
     }
 } 

@@ -91,7 +91,7 @@ public class GameState {
                 return card.value.equals("Draw Two");
             }
             if (topCard.value.equals("Wild Draw Four")) {
-                return false;
+                return card.value.equals("Wild Draw Four");
             }
             return false;
         }
@@ -129,7 +129,7 @@ public class GameState {
                 return card.value.equals("Draw Two");
             }
             if (topCard.value.equals("Wild Draw Four")) {
-                return false;
+                return card.value.equals("Wild Draw Four");
             }
             return false;
         }
@@ -173,6 +173,8 @@ public class GameState {
             currentPlayerIndex = (currentPlayerIndex + 2) % 4;
         } else if (card.value.equals("Reverse")) {
             direction *= -1;
+            clockwise = direction == 1;
+            System.out.println("Direction changed to: " + (clockwise ? "clockwise" : "counter-clockwise"));
             currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
         } else if (card.value.equals("Draw Two")) {
             drawStack += 2;
@@ -227,7 +229,7 @@ public class GameState {
     }
 
     public boolean isClockwise() {
-        return clockwise;
+        return direction == 1;
     }
 
     public int getDrawStack() {
@@ -236,5 +238,11 @@ public class GameState {
 
     public void setCurrentColor(String color) {
         this.currentColor = color;
+    }
+    
+    public void setCurrentPlayerIndex(int playerIndex) {
+        if (playerIndex >= 0 && playerIndex < 4) {
+            this.currentPlayerIndex = playerIndex;
+        }
     }
 } 
