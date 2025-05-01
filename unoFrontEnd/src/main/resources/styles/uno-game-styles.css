@@ -3,9 +3,11 @@
     -fx-font-weight: bold;
     -fx-text-fill: white;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 3, 0, 0, 0);
-    -fx-padding: 5px;
+    -fx-padding: 5px 15px;
     -fx-background-radius: 5px;
     -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-min-width: 120px;
+    -fx-alignment: center;
 }
 
 
@@ -20,4 +22,120 @@
 
 .corner-number-large {
     -fx-font-size: 22px !important;
+}
+
+.color-square {
+    -fx-stroke: white;
+    -fx-stroke-width: 2;
+    -fx-arc-width: 10;
+    -fx-arc-height: 10;
+}
+
+.color-button-container {
+    -fx-cursor: hand;
+}
+
+.color-button-container:hover .color-square {
+    -fx-stroke: gold;
+    -fx-stroke-width: 3;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 215, 0, 0.8), 10, 0, 0, 0);
+}
+
+.red-square {
+    -fx-fill: linear-gradient(to bottom right, #FF1744, #D50000);
+}
+
+.blue-square {
+    -fx-fill: linear-gradient(to bottom right, #2979FF, #0D47A1);
+}
+
+.green-square {
+    -fx-fill: linear-gradient(to bottom right, #00E676, #00C853);
+}
+
+.yellow-square {
+    -fx-fill: linear-gradient(to bottom right, #FFEB3B, #FBC02D);
+}
+
+.red-text {
+    -fx-text-fill: #ff0000;
+}
+
+.blue-text {
+    -fx-text-fill: #0000ff;
+}
+
+.green-text {
+    -fx-text-fill: #00ff00;
+}
+
+.yellow-text {
+    -fx-text-fill: #ffff00;
+}
+
+.game-over-overlay {
+    -fx-background-color: rgba(30, 58, 95, 0.85);
+}
+
+.game-over-dialog {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-padding: 40 60;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 0);
+    -fx-min-width: 500;
+    -fx-min-height: 300;
+    -fx-max-width: 500;
+    -fx-max-height: 300;
+    -fx-border-color: #2196F3;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+}
+
+.game-over-message {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #212121;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+}
+
+.game-over-button {
+    -fx-background-color: #2979FF;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-padding: 15 30;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-min-width: 200;
+    -fx-max-width: 200;
+}
+
+.game-over-button:hover {
+    -fx-background-color: #2196F3;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 0);
+}
+
+.uno-indicator {
+    -fx-background-radius: 50%;
+    -fx-min-width: 45px;
+    -fx-min-height: 45px;
+    -fx-max-width: 45px;
+    -fx-max-height: 45px;
+    -fx-background-color: #ff0000;
+    -fx-alignment: center;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 1);
+    -fx-border-color: white;
+    -fx-border-radius: 50%;
+    -fx-border-width: 2;
+    -fx-padding: 0;
+}
+
+.uno-indicator.uno-warning {
+    -fx-background-color: #ff0000;
+    -fx-effect: dropshadow(three-pass-box, #ffd700, 15, 0, 0, 0);
+    -fx-border-color: #ffd700;
+    -fx-border-width: 3;
 }
