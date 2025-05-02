@@ -3,52 +3,129 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.Circle?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.unofrontend.controllers.MenuController"
-            prefHeight="600.0" prefWidth="800.0"
-            style="-fx-background-color: #2C3E50;">
+            style="-fx-background-color: radial-gradient(center 50% 40%, radius 80%, #23272f 0%, #23272f 60%, #181a20 100%);"
+            prefWidth="1920.0" prefHeight="1080.0"
+            AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 
-    <VBox spacing="20" alignment="CENTER" 
-          AnchorPane.leftAnchor="0.0" 
-          AnchorPane.rightAnchor="0.0" 
-          AnchorPane.topAnchor="0.0" 
-          AnchorPane.bottomAnchor="0.0">
-        
-        <Label text="UNO Game" 
-               style="-fx-font-size: 48px; -fx-text-fill: white; -fx-font-weight: bold;"/>
-        
-        <VBox spacing="10" alignment="CENTER" style="-fx-background-color: #34495E; -fx-padding: 20; -fx-background-radius: 10;">
-            <Button fx:id="newGameButton" 
-                    text="New Game" 
-                    onAction="#handleNewGame"
-                    style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-size: 18px; -fx-min-width: 200; -fx-min-height: 40;"/>
+    <StackPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+        <VBox fx:id="menuVBox" spacing="40" alignment="CENTER">
             
-            <VBox fx:id="gameModeBox" 
-                  spacing="10" 
-                  alignment="CENTER" 
-                  visible="false">
-                <Button fx:id="singlePlayerButton" 
-                        text="Single Player" 
-                        onAction="#handleSinglePlayer"
-                        style="-fx-background-color: #2980B9; -fx-text-fill: white; -fx-font-size: 16px; -fx-min-width: 180; -fx-min-height: 35;"/>
+            <padding>
+                <Insets top="40" right="40" bottom="40" left="40"/>
+            </padding>
+            
+            <ImageView fitHeight="120" preserveRatio="true">
+                <image>
+                    <Image url="@../images/UNO_Logo.svg.png" />
+                </image>
+            </ImageView>
+            
+            <VBox spacing="24" alignment="CENTER" 
+                  style="-fx-background-color: #23272f;
+                         -fx-padding: 32;
+                         -fx-background-radius: 14;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 0);"
+                  maxWidth="400">
                 
-                <Button fx:id="multiPlayerButton" 
-                        text="Multiplayer" 
-                        onAction="#handleMultiPlayer"
-                        style="-fx-background-color: #8E44AD; -fx-text-fill: white; -fx-font-size: 16px; -fx-min-width: 180; -fx-min-height: 35;"/>
-            </VBox>
+                <Button fx:id="newGameButton"
+                        text=""
+                        onAction="#handleNewGame"
+                        style="-fx-background-color: #ffd600;
+                               -fx-font-size: 22px;
+                               -fx-padding: 10 32;
+                               -fx-background-radius: 8;
+                               -fx-cursor: hand;"
+                        maxWidth="Infinity" prefHeight="56">
+                    <graphic>
+                        <Label text="New Game"
+                               style="-fx-text-fill: white;
+                                      -fx-font-size: 22px;
+                                      -fx-effect: dropshadow(gaussian, black, 3, 0.4, 0, 0);"/>
+                    </graphic>
+                </Button>
 
-            <Button fx:id="leaderboardButton" 
-                    text="Leaderboard" 
-                    onAction="#handleLeaderboard"
-                    style="-fx-background-color: #F39C12; -fx-text-fill: white; -fx-font-size: 18px; -fx-min-width: 200; -fx-min-height: 40;"/>
+                <Separator style="-fx-background-color: transparent; -fx-padding: 6;"/>
+                
+                <Button fx:id="leaderboardButton" 
+                        text="Leaderboard" 
+                        onAction="#handleLeaderboard"
+                        style="-fx-background-color: #e53935;
+                               -fx-text-fill: white;
+                               -fx-font-size: 22px;
+                               -fx-padding: 10 32;
+                               -fx-background-radius: 8;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 0);"
+                        maxWidth="Infinity" prefHeight="56"/>
+            </VBox>
+            
+            <Button fx:id="logoutButton" 
+                    text="Logout" 
+                    onAction="#handleLogout"
+                    style="-fx-background-color: #546e7a;
+                           -fx-text-fill: white;
+                           -fx-font-size: 14px;
+                           -fx-padding: 6 20;
+                           -fx-background-radius: 6;
+                           -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 0, 0);"
+                    maxWidth="120"/>
         </VBox>
-        
-        <Button fx:id="logoutButton" 
-                text="Logout" 
-                onAction="#handleLogout"
-                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px; -fx-min-width: 100;"/>
-    </VBox>
+        <StackPane fx:id="gameModeOverlay" visible="false" pickOnBounds="true"
+                   style="-fx-background-color: rgba(0,0,0,0.4);">
+            <VBox alignment="CENTER" spacing="32"
+                  prefWidth="400" prefHeight="200" maxWidth="400" maxHeight="200"
+                  StackPane.alignment="CENTER"
+                  style="-fx-background-color: #23272f; -fx-background-radius: 14; -fx-padding: 32 40 56 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 0);">
+                <StackPane alignment="TOP_RIGHT">
+                    <Button fx:id="closeGameModeOverlayButton" text="✕" onAction="#closeGameModeOverlay"
+                            style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 24px; -fx-cursor: hand; -fx-padding: 0 0 0 0;"/>
+                </StackPane>
+                <VBox alignment="CENTER" spacing="24">
+                    <Button fx:id="singlePlayerOverlayButton" text="" onAction="#handleSinglePlayer"
+                            style="-fx-background-color: #ffd600; -fx-font-size: 18px; -fx-padding: 10 32; -fx-background-radius: 8; -fx-cursor: hand;"
+                            maxWidth="200" prefWidth="200" minWidth="200" prefHeight="48" maxHeight="48">
+                        <graphic>
+                            <Label text="Single Player"
+                                   style="-fx-text-fill: white;
+                                          -fx-font-size: 18px;
+                                          -fx-effect: dropshadow(gaussian, black, 3, 0.4, 0, 0);"/>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="multiPlayerOverlayButton" text="Multiplayer" onAction="#handleMultiPlayer"
+                            style="-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-size: 18px; -fx-padding: 10 32; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, black, 3, 0.4, 0, 0);"
+                            maxWidth="200" prefWidth="200" minWidth="200" prefHeight="48" maxHeight="48"/>
+                </VBox>
+            </VBox>
+        </StackPane>
+        <StackPane fx:id="leaderboardOverlay" visible="false" pickOnBounds="true"
+                   style="-fx-background-color: rgba(0,0,0,0.4);">
+            <VBox alignment="CENTER" spacing="24"
+                  prefWidth="1100" prefHeight="700" maxWidth="1100" maxHeight="700"
+                  StackPane.alignment="CENTER"
+                  style="-fx-background-color: #23272f; -fx-background-radius: 14; -fx-padding: 32 32 32 32; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 0);">
+                <StackPane alignment="TOP_RIGHT">
+                    <Button fx:id="closeLeaderboardOverlayButton" text="✕" onAction="#closeLeaderboardOverlay"
+                            style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 24px; -fx-cursor: hand; -fx-padding: 0 0 0 0;"/>
+                </StackPane>
+                <HBox spacing="20" alignment="CENTER">
+                    <Label text="Leaderboard" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <ComboBox fx:id="periodComboBox" promptText="Select Period"/>
+                </HBox>
+                <TableView fx:id="leaderboardTable" VBox.vgrow="ALWAYS" prefHeight="500" prefWidth="900">
+                    <columns>
+                        <TableColumn fx:id="rankColumn" text="Rank" prefWidth="100"/>
+                        <TableColumn fx:id="usernameColumn" text="Username" prefWidth="300"/>
+                        <TableColumn fx:id="scoreColumn" text="Score" prefWidth="200"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </StackPane>
+    </StackPane>
 </AnchorPane> 
