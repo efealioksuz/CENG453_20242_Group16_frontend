@@ -245,4 +245,12 @@ public class GameState {
             this.currentPlayerIndex = playerIndex;
         }
     }
+
+    public void setDrawStack(int amount) {
+        this.drawStack = amount;
+    }
+
+    public void reverseDirection() {
+        direction = -direction;
+    }
 } 

@@ -14,6 +14,10 @@
     fx:controller="com.example.unofrontend.controllers.GameBoardController"
     stylesheets="@../styles/uno-game-styles.css">
 
+    <Button fx:id="backToMainMenu" onAction="#handleBackToMainMenu" text="Back to Main Menu" 
+            AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" 
+            styleClass="back-to-menu-button"/>
+
     <VBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="500" AnchorPane.rightAnchor="500" AnchorPane.topAnchor="50">
         <HBox fx:id="playerHandBoxTop" alignment="CENTER" spacing="-55">
             <VBox.margin>
@@ -114,15 +118,21 @@
         <Button fx:id="unoButton" text="UNO!" onAction="#handleUno" styleClass="game-button" visible="false"/>
     </VBox>
 
-    <VBox alignment="CENTER" spacing="5" AnchorPane.rightAnchor="200" AnchorPane.bottomAnchor="60">
+    <VBox alignment="CENTER" spacing="5" AnchorPane.leftAnchor="250" AnchorPane.bottomAnchor="150" fx:id="cheatButtonsBox">
+        <Button fx:id="skipCheatButton" text="Skip" onAction="#handleSkipCheat" styleClass="game-button,cheat-button"/>
+        <Button fx:id="reverseCheatButton" text="Reverse" onAction="#handleReverseCheat" styleClass="game-button,cheat-button"/>
+        <Button fx:id="drawTwoCheatButton" text="Draw Two" onAction="#handleDrawTwoCheat" styleClass="game-button,cheat-button"/>
+        <Button fx:id="wildCheatButton" text="Wild" onAction="#handleWildCheat" styleClass="game-button,cheat-button"/>
+        <Button fx:id="wildDrawFourCheatButton" text="Wild Draw Four" onAction="#handleWildDrawFourCheat" styleClass="game-button,cheat-button"/>
+    </VBox>
+
+    <VBox alignment="CENTER" spacing="5" AnchorPane.rightAnchor="330" AnchorPane.bottomAnchor="150">
         <ImageView fx:id="directionIndicator" fitWidth="75" fitHeight="75" preserveRatio="true" styleClass="direction-arrow">
             <image>
                 <Image url="@../images/rotate-right.png"/>
             </image>
         </ImageView>
     </VBox>
-
-    <Button fx:id="backToLogin" onAction="#backToLogin" text="Back to Login" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" />
 
     <StackPane fx:id="gameOverOverlay" visible="false" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" 
                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" styleClass="game-over-overlay">
@@ -131,7 +141,7 @@
             <Label fx:id="gameOverMessage" styleClass="game-over-message"/>
             <VBox alignment="CENTER" spacing="15">
                 <Button text="Play Again" onAction="#handlePlayAgain" styleClass="game-over-button"/>
-                <Button text="Back to Menu" onAction="#handleBackToGameMenu" styleClass="game-over-button"/>
+                <Button text="Back to Menu" onAction="#handleBackToMainMenu" styleClass="game-over-button"/>
             </VBox>
         </VBox>
     </StackPane>

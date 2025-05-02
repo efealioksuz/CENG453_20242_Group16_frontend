@@ -126,7 +126,7 @@
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 5, 0, 0, 1);
     -fx-border-color: white;
     -fx-border-radius: 50%;
     -fx-border-width: 2;
@@ -162,4 +162,45 @@
 ImageView.turn-arrow {
     -fx-opacity: 1.0 !important;
     -fx-visibility: visible !important;
+}
+
+.cheat-button {
+    -fx-background-color: #2c3e50;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-min-width: 120px;
+    -fx-padding: 8px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 5, 0, 0, 1);
+}
+
+.cheat-button:hover {
+    -fx-background-color: #34495e;
+    -fx-cursor: hand;
+}
+
+.cheat-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+.back-to-menu-button {
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
+    -fx-background-color: #ff4d4d;
+    -fx-font-weight: bold;
+    -fx-padding: 8 15 8 15;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 5, 0.0, 0, 1);
+}
+
+.back-to-menu-button:hover {
+    -fx-background-color: #ff3333;
+    -fx-cursor: hand;
+}
+
+.back-to-menu-button:pressed {
+    -fx-background-color: #cc0000;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 3, 0.0, 0, 1);
 }

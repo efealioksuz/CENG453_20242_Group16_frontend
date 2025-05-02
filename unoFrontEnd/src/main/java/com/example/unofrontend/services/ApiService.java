@@ -63,8 +63,12 @@ public class ApiService {
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 LoginResponse loginResponse = response.getBody();
-                // Store the token and username in session
-                SessionManager.setSession(loginResponse.getToken(), loginResponse.getUser().getUsername());
+                // Store the token, username and userId in session
+                SessionManager.setSession(
+                    loginResponse.getToken(), 
+                    loginResponse.getUser().getUsername(),
+                    loginResponse.getUser().getId()
+                );
                 logger.info("Login successful for user: {}", loginResponse.getUser().getUsername());
                 return "success";
             } else {
@@ -168,7 +172,7 @@ public class ApiService {
             
             ResponseEntity<String> response = restTemplate.postForEntity(
                 url,
-                null,  // No request body needed
+                null, 
                 String.class
             );
             
@@ -257,6 +261,39 @@ public class ApiService {
         } catch (Exception e) {
             logger.error("Error fetching all-time leaderboard", e);
             throw new RuntimeException("Failed to fetch all-time leaderboard: " + e.getMessage());
+        }
+    }
+
+    public String updateDailyScore(int score) {
+        try {
+            String userId = SessionManager.getUserId();
+            if (userId == null) {
+                logger.error("Cannot update score: User ID is not set");
+                return "Cannot update score: User is not properly logged in";
+            }
+
+            logger.info("Updating daily score for user ID: {} with score: {}", userId, score);
+            String url = baseUrl + "/daily-score?userId=" + userId + "&score=" + score;
+
+            HttpHeaders headers = createAuthHeadersWithToken();
+            HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                logger.info("Daily score update successful for user ID: {}", userId);
+                return "success";
+            }
+
+            return response.getBody();
+        } catch (Exception e) {
+            logger.error("Error updating daily score", e);
+            return "An error occurred while updating daily score: " + e.getMessage();
         }
     }
 }
