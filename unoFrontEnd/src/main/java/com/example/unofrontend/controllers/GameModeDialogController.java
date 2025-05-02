@@ -43,7 +43,32 @@ public class GameModeDialogController {
             gameBoardController.initializeSinglePlayer();
             gameBoardController.setPlayerName(com.example.unofrontend.session.SessionManager.getUsername());
             Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            
+            // Get screen dimensions
+            javafx.geometry.Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+            
+            // Create a new scene with screen dimensions
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+            stage.setScene(scene);
+            
+            // Position the window to fill the screen
+            stage.setX(screenBounds.getMinX());
+            stage.setY(screenBounds.getMinY());
+            stage.setWidth(screenBounds.getWidth());
+            stage.setHeight(screenBounds.getHeight());
+            
+
+            stage.setMaximized(true);
+            
+            javafx.application.Platform.runLater(() -> {
+                // Double-check dimensions
+                if (stage.getWidth() < screenBounds.getWidth() || stage.getHeight() < screenBounds.getHeight()) {
+                    stage.setWidth(screenBounds.getWidth());
+                    stage.setHeight(screenBounds.getHeight());
+                    stage.setX(screenBounds.getMinX());
+                    stage.setY(screenBounds.getMinY());
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

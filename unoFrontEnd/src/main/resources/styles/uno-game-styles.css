@@ -84,19 +84,22 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 0);
     -fx-min-width: 500;
     -fx-min-height: 300;
-    -fx-max-width: 500;
-    -fx-max-height: 300;
+    -fx-max-width: 600;
+    -fx-max-height: 400;
     -fx-border-color: #2196F3;
     -fx-border-width: 2;
     -fx-border-radius: 10;
 }
 
 .game-over-message {
-    -fx-font-size: 32px;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
     -fx-text-fill: #212121;
     -fx-text-alignment: center;
     -fx-wrap-text: true;
+    -fx-min-width: 400;
+    -fx-max-width: 500;
+    -fx-alignment: center;
 }
 
 .game-over-button {

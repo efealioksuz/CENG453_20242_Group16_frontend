@@ -548,8 +548,17 @@ public class GameBoardController {
     }
 
     private void showGameOver(String message) {
+        // Make sure the message is visible by ensuring proper formatting
         gameOverMessage.setText(message);
+        gameOverMessage.setWrapText(true);
+        gameOverMessage.setMaxWidth(500);
+        
+        // Show the overlay
         gameOverOverlay.setVisible(true);
+        gameOverOverlay.setMouseTransparent(false);
+        
+        // Make sure the overlay is on top
+        gameOverOverlay.toFront();
     }
 
     private void addCardsToHand(List<CardData> cards, Pane handBox) {
@@ -651,24 +660,39 @@ public class GameBoardController {
             loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
             Stage stage = (Stage) backToMainMenu.getScene().getWindow();
-            Scene scene = new Scene(root);
             
-           
+            // Store current stage properties
+            boolean wasMaximized = stage.isMaximized();
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+            double x = stage.getX();
+            double y = stage.getY();
+            
+            // Get screen dimensions as fallback
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            
+            // Create and set scene
+            Scene scene = new Scene(root, width, height);
             stage.setScene(scene);
             
-         
-            stage.sizeToScene();  
+            // Restore position and size
+            stage.setX(x);
+            stage.setY(y);
+            stage.setWidth(width);
+            stage.setHeight(height);
             
-            Screen screen = Screen.getPrimary();
-            Rectangle2D bounds = screen.getVisualBounds();
+            if (wasMaximized) {
+                stage.setMaximized(true);
+            }
             
-            double centerX = bounds.getMinX() + (bounds.getWidth() - stage.getWidth()) / 2;
-            double centerY = bounds.getMinY() + (bounds.getHeight() - stage.getHeight()) / 2;
-            
-           
-            stage.setX(centerX);
-            stage.setY(centerY);
-            
+            // If the window is smaller than the screen, resize it
+            if (width < screenBounds.getWidth() || height < screenBounds.getHeight()) {
+                stage.setX(screenBounds.getMinX());
+                stage.setY(screenBounds.getMinY());
+                stage.setWidth(screenBounds.getWidth());
+                stage.setHeight(screenBounds.getHeight());
+                stage.setMaximized(true);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -975,6 +999,20 @@ public class GameBoardController {
         gameOverOverlay.setVisible(false);
         initializeSinglePlayer();
         setPlayerName(com.example.unofrontend.session.SessionManager.getUsername());
+        
+        Stage stage = (Stage) backToMainMenu.getScene().getWindow();
+        
+        // Get screen dimensions
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        
+
+        stage.setX(screenBounds.getMinX());
+        stage.setY(screenBounds.getMinY());
+        stage.setWidth(screenBounds.getWidth());
+        stage.setHeight(screenBounds.getHeight());
+        
+
+        stage.setMaximized(true);
     }
 
     private void updateUnoIndicator(int playerIndex, int cardCount) {

@@ -132,15 +132,32 @@ public class MenuController {
             gameBoardController.initializeSinglePlayer();
             gameBoardController.setPlayerName(com.example.unofrontend.session.SessionManager.getUsername());
             Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-            boolean wasFullScreen = stage.isFullScreen();
-            boolean wasMaximized = stage.isMaximized();
-            Scene scene = new Scene(root);
+            
+            // Get screen dimensions
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            
+            // Create a new scene with screen dimensions
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
             stage.setScene(scene);
+            
+            // Position the window to fill the screen
+            stage.setX(screenBounds.getMinX());
+            stage.setY(screenBounds.getMinY());
+            stage.setWidth(screenBounds.getWidth());
+            stage.setHeight(screenBounds.getHeight());
+            
+
             stage.setMaximized(true);
-            if (wasFullScreen) {
-                Platform.runLater(() -> stage.setFullScreen(true));
-            }
+            
             Platform.runLater(() -> {
+                // Double-check dimensions
+                if (stage.getWidth() < screenBounds.getWidth() || stage.getHeight() < screenBounds.getHeight()) {
+                    stage.setWidth(screenBounds.getWidth());
+                    stage.setHeight(screenBounds.getHeight());
+                    stage.setX(screenBounds.getMinX());
+                    stage.setY(screenBounds.getMinY());
+                }
+                
                 root.requestLayout();
                 root.layout();
                 for (javafx.scene.Node child : root.getChildrenUnmodifiable()) {
@@ -149,10 +166,6 @@ public class MenuController {
                         pane.layout();
                     }
                 }
-                // Center the window on the screen
-                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
-                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
             });
         } catch (IOException e) {
             e.printStackTrace();
