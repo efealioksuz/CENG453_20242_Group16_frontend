@@ -125,6 +125,7 @@ public class GameBoardController {
     private AIPlayer aiPlayer;
     private boolean isPlayerTurn;
     private String playerName = "Player 1";
+    private boolean playerWonGame = false;
     @FXML
     private ImageView drawPileLogo;
     private CardData pendingWildCard = null;
@@ -386,6 +387,7 @@ public class GameBoardController {
                         updateDirectionIndicator();
 
                         if (aiHand.isEmpty()) {
+                            playerWonGame = false;
                             showGameOver("Game Over! " + logPlayerName + " Won!");
                             return;
                         }
@@ -438,6 +440,7 @@ public class GameBoardController {
                     updateDirectionIndicator();
 
                     if (aiHand.isEmpty()) {
+                        playerWonGame = false;
                         showGameOver("Game Over! " + logPlayerName + " Won!");
                         return;
                     }
@@ -488,6 +491,7 @@ public class GameBoardController {
                                 updateDirectionIndicator();
 
                                 if (aiHand.isEmpty()) {
+                                    playerWonGame = false;
                                     showGameOver("Game Over! " + logPlayerName + " Won!");
                                     return;
                                 }
@@ -553,12 +557,28 @@ public class GameBoardController {
         gameOverMessage.setWrapText(true);
         gameOverMessage.setMaxWidth(500);
         
+
+        String username = SessionManager.getUsername();
+        if (username != null && !username.isEmpty()) {
+
+            int scoreChange = playerWonGame ? 1 : -1;
+            String result = apiService.updateDailyScore(scoreChange);
+            if (!"success".equals(result)) {
+                System.err.println("Failed to update daily score: " + result);
+            } else {
+                System.out.println("Updated score for " + username + ": " + scoreChange);
+            }
+        }
+        
         // Show the overlay
         gameOverOverlay.setVisible(true);
         gameOverOverlay.setMouseTransparent(false);
         
         // Make sure the overlay is on top
         gameOverOverlay.toFront();
+        
+        // Reset the flag for next game
+        playerWonGame = false;
     }
 
     private void addCardsToHand(List<CardData> cards, Pane handBox) {
@@ -781,13 +801,7 @@ public class GameBoardController {
             
           
             if (gameState.getPlayerHand(0).isEmpty()) {
-                String username = SessionManager.getUsername();
-                if (username != null && !username.isEmpty()) {
-                    String result = apiService.updateDailyScore(1);
-                    if (!"success".equals(result)) {
-                        System.err.println("Failed to update daily score: " + result);
-                    }
-                }
+                playerWonGame = true;
                 showGameOver("Congratulations! You Won!");
                 addCardToCenterPile(pendingWildCard);
                 updateCurrentColorLabel();
@@ -840,14 +854,7 @@ public class GameBoardController {
                     updateDirectionIndicator();
                     
                     if (gameState.getPlayerHand(0).isEmpty()) {
-                        
-                        String username = SessionManager.getUsername();
-                        if (username != null && !username.isEmpty()) {
-                            String result = apiService.updateDailyScore(1);
-                            if (!"success".equals(result)) {
-                                System.err.println("Failed to update daily score: " + result);
-                            }
-                        }
+                        playerWonGame = true;
                         showGameOver("Congratulations! You Won!");
                         return;
                     }

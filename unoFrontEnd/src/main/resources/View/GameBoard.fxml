@@ -183,18 +183,12 @@
     </VBox>
 
     <!-- Direction Indicator -->
-    <VBox alignment="TOP_CENTER" spacing="5" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="TOP">
-        <padding>
-            <Insets top="10" />
-        </padding>
+    <VBox alignment="CENTER" spacing="5" GridPane.columnIndex="2" GridPane.rowIndex="3">
         <ImageView fx:id="directionIndicator" fitWidth="75" fitHeight="75" preserveRatio="true" styleClass="direction-arrow">
             <image>
                 <Image url="@../images/rotate-right.png"/>
             </image>
         </ImageView>
-        <GridPane.margin>
-            <Insets top="0" right="10" />
-        </GridPane.margin>
     </VBox>
 
     <!-- Game Over Overlay -->
