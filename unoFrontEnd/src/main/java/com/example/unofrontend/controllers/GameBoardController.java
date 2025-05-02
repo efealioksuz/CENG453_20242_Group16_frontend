@@ -69,7 +69,6 @@ public class GameBoardController {
     @FXML
     private Rectangle currentColorRect;
     @FXML
-
     private StackPane gameOverOverlay;
     @FXML
     private Label gameOverMessage;
@@ -81,7 +80,6 @@ public class GameBoardController {
     private Label player3UnoIndicator;
     @FXML
     private Label player4UnoIndicator;
-
     @FXML
     private ImageView topPlayerArrow;
     @FXML
@@ -92,10 +90,8 @@ public class GameBoardController {
     private ImageView rightPlayerArrow;
     @FXML
     private Label playerNameLabel;
-
     @FXML
     private ImageView directionIndicator;
-
     @FXML
     private VBox cheatButtonsBox;
     @FXML
@@ -108,6 +104,8 @@ public class GameBoardController {
     private Button wildCheatButton;
     @FXML
     private Button wildDrawFourCheatButton;
+    @FXML
+    private HBox playerNameBox;
 
     private static final String[] COLORS = {"red", "yellow", "green", "blue"};
     private static final String[] VALUES = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Skip", "Reverse", "Draw Two"};
@@ -127,17 +125,12 @@ public class GameBoardController {
     private AIPlayer aiPlayer;
     private boolean isPlayerTurn;
     private String playerName = "Player 1";
-
     @FXML
     private ImageView drawPileLogo;
-
     private CardData pendingWildCard = null;
-
     private final ApplicationContext context;
-
     private Image clockwiseImage;
     private Image counterClockwiseImage;
-
     @Autowired
     private ApiService apiService;
 
@@ -195,6 +188,10 @@ public class GameBoardController {
             if (backToMainMenu != null) {
                 backToMainMenu.getStyleClass().add("back-to-menu-button");
                 backToMainMenu.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-background-color: #ff4d4d; -fx-font-weight: bold; -fx-padding: 8 15 8 15;");
+            }
+
+            if (playerNameBox != null && playerHandBoxBottom != null) {
+                playerNameBox.prefWidthProperty().bind(playerHandBoxBottom.widthProperty());
             }
         } catch (Exception e) {
             System.err.println("Error during initialization: " + e.getMessage());
