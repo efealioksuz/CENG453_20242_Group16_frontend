@@ -15,7 +15,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.geometry.Rectangle2D;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -123,6 +125,12 @@ public class ResetPasswordController {
             Parent root = loader.load();
             Stage stage = (Stage) backToLoginButton.getScene().getWindow();
             stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            javafx.application.Platform.runLater(() -> {
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

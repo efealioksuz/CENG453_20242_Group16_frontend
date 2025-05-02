@@ -10,7 +10,6 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.unofrontend.controllers.MenuController"
             style="-fx-background-color: radial-gradient(center 50% 40%, radius 80%, #23272f 0%, #23272f 60%, #181a20 100%);"
-            prefWidth="1920.0" prefHeight="1080.0"
             AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 
     <StackPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0">

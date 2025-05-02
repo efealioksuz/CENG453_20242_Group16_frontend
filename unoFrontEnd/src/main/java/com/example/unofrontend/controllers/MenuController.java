@@ -23,6 +23,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import com.example.unofrontend.models.LeaderboardEntry;
 import com.example.unofrontend.models.Leaderboard;
 import com.example.unofrontend.services.ApiService;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 
 import java.io.IOException;
 
@@ -131,6 +133,7 @@ public class MenuController {
             gameBoardController.setPlayerName(com.example.unofrontend.session.SessionManager.getUsername());
             Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
             boolean wasFullScreen = stage.isFullScreen();
+            boolean wasMaximized = stage.isMaximized();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setMaximized(true);
@@ -138,10 +141,18 @@ public class MenuController {
                 Platform.runLater(() -> stage.setFullScreen(true));
             }
             Platform.runLater(() -> {
-                if (root instanceof javafx.scene.layout.Pane pane) {
-                    pane.requestLayout();
-                    pane.layout();
+                root.requestLayout();
+                root.layout();
+                for (javafx.scene.Node child : root.getChildrenUnmodifiable()) {
+                    if (child instanceof javafx.scene.layout.Pane pane) {
+                        pane.requestLayout();
+                        pane.layout();
+                    }
                 }
+                // Center the window on the screen
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
             });
         } catch (IOException e) {
             e.printStackTrace();
@@ -211,13 +222,30 @@ public class MenuController {
     private void handleLogout() {
         try {
             com.example.unofrontend.session.SessionManager.clearSession();
-            
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/login.fxml"));
             loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
-            
             Stage stage = (Stage) logoutButton.getScene().getWindow();
+            boolean wasFullScreen = stage.isFullScreen();
+            boolean wasMaximized = stage.isMaximized();
             stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            if (wasFullScreen) {
+                Platform.runLater(() -> stage.setFullScreen(true));
+            }
+            Platform.runLater(() -> {
+                root.requestLayout();
+                root.layout();
+                for (javafx.scene.Node child : root.getChildrenUnmodifiable()) {
+                    if (child instanceof javafx.scene.layout.Pane pane) {
+                        pane.requestLayout();
+                        pane.layout();
+                    }
+                }
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
