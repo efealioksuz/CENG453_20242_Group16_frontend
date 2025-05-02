@@ -10,6 +10,8 @@ import com.example.unofrontend.models.CardData;
 import com.example.unofrontend.models.GameState;
 import com.example.unofrontend.models.AIPlayer;
 import com.example.unofrontend.controllers.CardController;
+import com.example.unofrontend.services.ApiService;
+import com.example.unofrontend.session.SessionManager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +23,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Screen;
+import javafx.geometry.Rectangle2D;
 import org.springframework.stereotype.Component;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -36,11 +40,12 @@ import javafx.event.ActionEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.input.MouseEvent;
 import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class GameBoardController {
     @FXML
-    private Button backToLogin;
+    private Button backToMainMenu;
     @FXML
     private HBox playerHandBoxTop;
     @FXML
@@ -91,6 +96,19 @@ public class GameBoardController {
     @FXML
     private ImageView directionIndicator;
 
+    @FXML
+    private VBox cheatButtonsBox;
+    @FXML
+    private Button skipCheatButton;
+    @FXML
+    private Button reverseCheatButton;
+    @FXML
+    private Button drawTwoCheatButton;
+    @FXML
+    private Button wildCheatButton;
+    @FXML
+    private Button wildDrawFourCheatButton;
+
     private static final String[] COLORS = {"red", "yellow", "green", "blue"};
     private static final String[] VALUES = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Skip", "Reverse", "Draw Two"};
     private static final String[] WILD_VALUES = {"Wild", "Wild Draw Four"};
@@ -119,6 +137,9 @@ public class GameBoardController {
 
     private Image clockwiseImage;
     private Image counterClockwiseImage;
+
+    @Autowired
+    private ApiService apiService;
 
     public GameBoardController(ApplicationContext context) {
         this.context = context;
@@ -167,8 +188,16 @@ public class GameBoardController {
                 System.err.println("Direction indicator is NULL");
             }
             
+            // Initialize cheat buttons
+            updateCheatButtonsVisibility();
+
+           
+            if (backToMainMenu != null) {
+                backToMainMenu.getStyleClass().add("back-to-menu-button");
+                backToMainMenu.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-background-color: #ff4d4d; -fx-font-weight: bold; -fx-padding: 8 15 8 15;");
+            }
         } catch (Exception e) {
-            System.err.println("Error in initialize: " + e.getMessage());
+            System.err.println("Error during initialization: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -619,12 +648,30 @@ public class GameBoardController {
     }
 
     @FXML
-    private void backToLogin() {
+    private void handleBackToMainMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/menu.fxml"));
+            loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
-            Stage stage = (Stage) backToLogin.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Stage stage = (Stage) backToMainMenu.getScene().getWindow();
+            Scene scene = new Scene(root);
+            
+           
+            stage.setScene(scene);
+            
+         
+            stage.sizeToScene();  
+            
+            Screen screen = Screen.getPrimary();
+            Rectangle2D bounds = screen.getVisualBounds();
+            
+            double centerX = bounds.getMinX() + (bounds.getWidth() - stage.getWidth()) / 2;
+            double centerY = bounds.getMinY() + (bounds.getHeight() - stage.getHeight()) / 2;
+            
+           
+            stage.setX(centerX);
+            stage.setY(centerY);
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -638,50 +685,164 @@ public class GameBoardController {
     }
 
     @FXML
+    private void handleSkipCheat() {
+        if (!isPlayerTurn) return;
+        String currentColor = gameState.getCurrentColor();
+        CardData card = new CardData("Skip", currentColor);
+        gameState.playCard(0, card, currentColor);
+        addCardToCenterPile(card);
+        updateCurrentColorLabel();
+        updateDirectionIndicator();
+        isPlayerTurn = false;
+        forceUpdateArrows();
+        playAITurns();
+    }
+
+    @FXML
+    private void handleReverseCheat() {
+        if (!isPlayerTurn) return;
+        String currentColor = gameState.getCurrentColor();
+        CardData card = new CardData("Reverse", currentColor);
+        gameState.playCard(0, card, currentColor);
+        addCardToCenterPile(card);
+        updateCurrentColorLabel();
+        updateDirectionIndicator();
+        isPlayerTurn = false;
+        forceUpdateArrows();
+        playAITurns();
+    }
+
+    @FXML
+    private void handleDrawTwoCheat() {
+        if (!isPlayerTurn) return;
+        String currentColor = gameState.getCurrentColor();
+        CardData card = new CardData("Draw Two", currentColor);
+        gameState.playCard(0, card, currentColor);
+        addCardToCenterPile(card);
+        updateCurrentColorLabel();
+        updateDirectionIndicator();
+        isPlayerTurn = false;
+        forceUpdateArrows();
+        playAITurns();
+    }
+
+    @FXML
+    private void handleWildCheat() {
+        if (!isPlayerTurn) return;
+        pendingWildCard = new CardData("Wild", "black");
+        colorSelectionBox.setVisible(true);
+    }
+
+    @FXML
+    private void handleWildDrawFourCheat() {
+        if (!isPlayerTurn) return;
+        pendingWildCard = new CardData("Wild Draw Four", "black");
+        colorSelectionBox.setVisible(true);
+    }
+
+    @FXML
     private void handleColorSelection(MouseEvent event) {
         if (pendingWildCard == null) return;
         
         StackPane colorButton = (StackPane) event.getSource();
         String selectedColor = (String) colorButton.getUserData();
         
-        Integer cardIndex = (Integer) drawPileBox.getProperties().get("pendingCardIndex");
-        playCard(pendingWildCard, selectedColor, cardIndex);
+        Object pendingCardIndexObj = drawPileBox.getProperties().get("pendingCardIndex");
+        if (pendingCardIndexObj != null) {
+            // Regular card play from hand
+            int cardIndex = (Integer) pendingCardIndexObj;
+            List<CardData> playerHand = gameState.getPlayerHand(0);
+            if (cardIndex >= 0 && cardIndex < playerHand.size()) {
+                playerHand.remove(cardIndex);
+                refreshPlayerHand();
+            }
+            gameState.playCard(0, pendingWildCard, selectedColor);
+            
+          
+            if (gameState.getPlayerHand(0).isEmpty()) {
+                String username = SessionManager.getUsername();
+                if (username != null && !username.isEmpty()) {
+                    String result = apiService.updateDailyScore(1);
+                    if (!"success".equals(result)) {
+                        System.err.println("Failed to update daily score: " + result);
+                    }
+                }
+                showGameOver("Congratulations! You Won!");
+                addCardToCenterPile(pendingWildCard);
+                updateCurrentColorLabel();
+                updateDirectionIndicator();
+                pendingWildCard = null;
+                colorSelectionBox.setVisible(false);
+                drawPileBox.getProperties().remove("pendingCardIndex");
+                return;
+            }
+        } else {
+            
+            if (pendingWildCard.value.equals("Wild Draw Four")) {
+                gameState.setCurrentColor(selectedColor);
+                gameState.setDrawStack(4);
+                gameState.moveToNextPlayer();
+            } else {
+                gameState.playCard(0, pendingWildCard, selectedColor);
+            }
+        }
+        
+        addCardToCenterPile(pendingWildCard);
+        updateCurrentColorLabel();
+        updateDirectionIndicator();
+        
         pendingWildCard = null;
         colorSelectionBox.setVisible(false);
         drawPileBox.getProperties().remove("pendingCardIndex");
+        isPlayerTurn = false;
+        forceUpdateArrows();
+        playAITurns();
     }
 
     private void playCard(CardData card, String color, int cardIndex) {
         System.out.println("Playing card at index: " + cardIndex);
-        System.out.println("Current hand size before playing: " + gameState.getPlayerHand(0).size());
         
-        List<CardData> playerHand = gameState.getPlayerHand(0);
-        
-        if (cardIndex >= 0 && cardIndex < playerHand.size()) {
-            CardData clickedCard = playerHand.get(cardIndex);
-            if (clickedCard.value.equals(card.value) && clickedCard.color.equals(card.color)) {
-                CardData cardToPlay = new CardData(clickedCard.value, clickedCard.color);
-                playerHand.remove(cardIndex);
-                gameState.playCard(0, cardToPlay, color);
-                refreshPlayerHand();
-                addCardToCenterPile(cardToPlay);
-                updateCurrentColorLabel();
-                updateDirectionIndicator();
-                
-                if (gameState.getPlayerHand(0).isEmpty()) {
-                    showGameOver("Congratulations! You Won! 🎉");
+        if (cardIndex >= 0) {
+            // Regular card play from hand
+            List<CardData> playerHand = gameState.getPlayerHand(0);
+            System.out.println("Current hand size before playing: " + playerHand.size());
+            
+            if (cardIndex < playerHand.size()) {
+                CardData clickedCard = playerHand.get(cardIndex);
+                if (clickedCard.value.equals(card.value) && clickedCard.color.equals(card.color)) {
+                    CardData cardToPlay = new CardData(clickedCard.value, clickedCard.color);
+                    playerHand.remove(cardIndex);
+                    gameState.playCard(0, cardToPlay, color);
+                    refreshPlayerHand();
+                    addCardToCenterPile(cardToPlay);
+                    updateCurrentColorLabel();
+                    updateDirectionIndicator();
+                    
+                    if (gameState.getPlayerHand(0).isEmpty()) {
+                        
+                        String username = SessionManager.getUsername();
+                        if (username != null && !username.isEmpty()) {
+                            String result = apiService.updateDailyScore(1);
+                            if (!"success".equals(result)) {
+                                System.err.println("Failed to update daily score: " + result);
+                            }
+                        }
+                        showGameOver("Congratulations! You Won!");
+                        return;
+                    }
+                } else {
+                    System.out.println("Card at index " + cardIndex + " doesn't match the card being played!");
                     return;
                 }
-                
-                isPlayerTurn = false;
-                forceUpdateArrows();
-                playAITurns();
             } else {
-                System.out.println("Card at index " + cardIndex + " doesn't match the card being played!");
+                System.out.println("Invalid card index: " + cardIndex);
+                return;
             }
-        } else {
-            System.out.println("Invalid card index: " + cardIndex);
         }
+        
+        isPlayerTurn = false;
+        forceUpdateArrows();
+        playAITurns();
     }
 
     @FXML
@@ -765,6 +926,7 @@ public class GameBoardController {
                 e.printStackTrace();
             }
         });
+        updateCheatButtonsVisibility();
     }
     
     private void hideAllArrows() {
@@ -818,19 +980,6 @@ public class GameBoardController {
         setPlayerName(com.example.unofrontend.session.SessionManager.getUsername());
     }
 
-    @FXML
-    private void handleBackToGameMenu() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/menu.fxml"));
-            loader.setControllerFactory(context::getBean);  // Set Spring controller factory
-            Parent root = loader.load();
-            Stage stage = (Stage) gameOverOverlay.getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void updateUnoIndicator(int playerIndex, int cardCount) {
         Label indicator = switch (playerIndex) {
             case 0 -> playerUnoIndicator;
@@ -848,5 +997,15 @@ public class GameBoardController {
                 indicator.getStyleClass().remove("uno-warning");
             }
         }
+    }
+
+    private void updateCheatButtonsVisibility() {
+        boolean isVisible = isPlayerTurn;
+        cheatButtonsBox.setVisible(isVisible);
+        skipCheatButton.setVisible(isVisible);
+        reverseCheatButton.setVisible(isVisible);
+        drawTwoCheatButton.setVisible(isVisible);
+        wildCheatButton.setVisible(isVisible);
+        wildDrawFourCheatButton.setVisible(isVisible);
     }
 } 
