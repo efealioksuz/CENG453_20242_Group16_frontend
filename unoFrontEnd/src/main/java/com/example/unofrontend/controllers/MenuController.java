@@ -25,8 +25,15 @@ import com.example.unofrontend.models.Leaderboard;
 import com.example.unofrontend.services.ApiService;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
+import com.example.unofrontend.session.SessionManager;
+import com.example.unofrontend.services.WebSocketService;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 
 @Component
 public class MenuController {
@@ -79,13 +86,35 @@ public class MenuController {
     @FXML
     private ComboBox<String> periodComboBox;
 
+    // Multiplayer Room Management fields
+    @FXML
+    private StackPane multiplayerRoomOverlay;
+    @FXML
+    private Button createRoomButton;
+    @FXML
+    private Button joinRoomButton;
+    @FXML
+    private Button startGameButton;
+    @FXML
+    private TextField roomIdInput;
+    @FXML
+    private Label roomIdLabel;
+    @FXML
+    private Label multiplayerStatusLabel;
+
     @Autowired
     private ApplicationContext context;
 
     @Autowired
     private ApiService apiService;
 
+    @Autowired
+    private WebSocketService webSocketService;
+
     private final ObservableList<LeaderboardEntry> leaderboardData = FXCollections.observableArrayList();
+    private String currentRoomId;
+    private boolean isRoomCreator = false;
+    private boolean gameTransitionInProgress = false;
 
     @FXML
     public void initialize() {
@@ -130,7 +159,7 @@ public class MenuController {
             Parent root = loader.load();
             GameBoardController gameBoardController = loader.getController();
             gameBoardController.initializeSinglePlayer();
-            gameBoardController.setPlayerName(com.example.unofrontend.session.SessionManager.getUsername());
+            gameBoardController.setPlayerName(SessionManager.getUsername());
             Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
             
             // Get screen dimensions
@@ -174,7 +203,178 @@ public class MenuController {
 
     @FXML
     private void handleMultiPlayer(javafx.event.ActionEvent event) {
-        System.out.println("Multiplayer mode not implemented yet");
+        // Show room management overlay instead of directly starting game
+        if (multiplayerRoomOverlay != null) {
+            multiplayerRoomOverlay.setVisible(true);
+            resetMultiplayerUI();
+        }
+    }
+
+    @FXML
+    private void handleCreateRoom() {
+        try {
+            String playerName = SessionManager.getUsername();
+            if (playerName == null || playerName.trim().isEmpty()) {
+                showMultiplayerError("Player name not found. Please login again.");
+                return;
+            }
+            
+            createRoomButton.setDisable(true);
+            multiplayerStatusLabel.setText("Creating room...");
+            multiplayerStatusLabel.setVisible(true);
+            multiplayerStatusLabel.setStyle("-fx-text-fill: #3498db;");
+            
+            // Call REST API to create room
+            new Thread(() -> {
+                try {
+                    Map<String, Object> response = apiService.createRoom(playerName);
+                    
+                    Platform.runLater(() -> {
+                        Boolean success = (Boolean) response.get("success");
+                        if (success != null && success) {
+                            currentRoomId = (String) response.get("roomId");
+                            isRoomCreator = true;
+                            
+                            roomIdLabel.setText("Room ID: " + currentRoomId + " (Share this with other players)");
+                            roomIdLabel.setVisible(true);
+                            
+                            multiplayerStatusLabel.setText("Room created! Waiting for players...");
+                            multiplayerStatusLabel.setStyle("-fx-text-fill: #27ae60;");
+                            
+                            joinRoomButton.setDisable(true);
+                            roomIdInput.setDisable(true);
+                            startGameButton.setVisible(true);
+                            startGameButton.setDisable(true);
+                            
+
+                            connectToRoomWebSocket(currentRoomId);
+                            
+                            System.out.println("Room created with ID: " + currentRoomId);
+                        } else {
+                            String errorMsg = (String) response.get("message");
+                            createRoomButton.setDisable(false);
+                            showMultiplayerError("Failed to create room: " + errorMsg);
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        createRoomButton.setDisable(false);
+                        showMultiplayerError("Failed to create room: " + e.getMessage());
+                    });
+                }
+            }).start();
+            
+        } catch (Exception e) {
+            createRoomButton.setDisable(false);
+            showMultiplayerError("Failed to create room: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleJoinRoom() {
+        try {
+            String roomId = roomIdInput.getText().trim();
+            if (roomId.isEmpty()) {
+                showMultiplayerError("Please enter a Room ID");
+                return;
+            }
+            
+            String playerName = SessionManager.getUsername();
+            if (playerName == null || playerName.trim().isEmpty()) {
+                showMultiplayerError("Player name not found. Please login again.");
+                return;
+            }
+            
+            joinRoomButton.setDisable(true);
+            multiplayerStatusLabel.setText("Joining room: " + roomId + "...");
+            multiplayerStatusLabel.setVisible(true);
+            multiplayerStatusLabel.setStyle("-fx-text-fill: #3498db;");
+            
+            // Call REST API to join room
+            new Thread(() -> {
+                try {
+                    Map<String, Object> response = apiService.joinRoom(roomId, playerName);
+                    
+                    Platform.runLater(() -> {
+                        Boolean success = (Boolean) response.get("success");
+                        if (success != null && success) {
+                            currentRoomId = roomId;
+                            isRoomCreator = false;
+                            
+                            multiplayerStatusLabel.setText("Successfully joined room: " + roomId);
+                            multiplayerStatusLabel.setStyle("-fx-text-fill: #27ae60;");
+                            
+                            createRoomButton.setDisable(true);
+                            roomIdInput.setDisable(true);
+                            startGameButton.setVisible(true);
+                            startGameButton.setDisable(true);
+                            
+
+                            connectToRoomWebSocket(currentRoomId);
+                            
+                            System.out.println("Successfully joined room: " + roomId);
+                        } else {
+                            String errorMsg = (String) response.get("message");
+                            joinRoomButton.setDisable(false);
+                            showMultiplayerError("Failed to join room: " + errorMsg);
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        joinRoomButton.setDisable(false);
+                        showMultiplayerError("Failed to join room: " + e.getMessage());
+                    });
+                }
+            }).start();
+            
+        } catch (Exception e) {
+            joinRoomButton.setDisable(false);
+            showMultiplayerError("Failed to join room: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleStartMultiplayerGame() {
+        try {
+            if (currentRoomId == null) {
+                showMultiplayerError("No room selected");
+                return;
+            }
+            
+
+            String roomIdToUse = currentRoomId;
+            boolean roomCreator = isRoomCreator;
+            
+            // Stop polling but keep WebSocket connection for GameBoard
+            stopRoomStatusPolling();
+            
+            // Close the overlay
+            multiplayerRoomOverlay.setVisible(false);
+            
+            // Start the multiplayer game
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/gameBoard.fxml"));
+            loader.setControllerFactory(context::getBean);
+            Parent root = loader.load();
+            
+            GameBoardController gameBoardController = loader.getController();
+            gameBoardController.setPlayerName(SessionManager.getUsername());
+            gameBoardController.initializeMultiPlayerWithRoom(roomIdToUse, roomCreator);
+            
+            Stage stage = (Stage) startGameButton.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            stage.setX(screenBounds.getMinX());
+            stage.setY(screenBounds.getMinY());
+            stage.setWidth(screenBounds.getWidth());
+            stage.setHeight(screenBounds.getHeight());
+            stage.setMaximized(true);
+            
+        } catch (Exception e) {
+            showMultiplayerError("Failed to start game: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -234,7 +434,7 @@ public class MenuController {
     @FXML
     private void handleLogout() {
         try {
-            com.example.unofrontend.session.SessionManager.clearSession();
+            SessionManager.clearSession();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/login.fxml"));
             loader.setControllerFactory(context::getBean);
             Parent root = loader.load();
@@ -262,5 +462,266 @@ public class MenuController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void closeMultiplayerRoomOverlay() {
+        if (multiplayerRoomOverlay != null) {
+            multiplayerRoomOverlay.setVisible(false);
+            resetMultiplayerUI();
+        }
+    }
+
+    private void resetMultiplayerUI() {
+        currentRoomId = null;
+        isRoomCreator = false;
+        gameTransitionInProgress = false;
+        
+        roomIdLabel.setVisible(false);
+        multiplayerStatusLabel.setVisible(false);
+        startGameButton.setVisible(false);
+        
+        createRoomButton.setDisable(false);
+        joinRoomButton.setDisable(false);
+        roomIdInput.setDisable(false);
+        roomIdInput.clear();
+    }
+
+    private void showMultiplayerError(String message) {
+        multiplayerStatusLabel.setText(message);
+        multiplayerStatusLabel.setVisible(true);
+        multiplayerStatusLabel.setStyle("-fx-text-fill: #e74c3c;");
+        System.out.println("Multiplayer error: " + message);
+    }
+
+    private void connectToRoomWebSocket(String roomId) {
+        try {
+            System.out.println("Room status polling başlatılıyor... Room: " + roomId);
+            
+            // WebSocket subscription for real-time room updates
+            WebSocketService webSocketService = context.getBean(WebSocketService.class);
+            String serverUrl = "http://localhost:8080/uno-websocket";
+            
+            webSocketService.connect(serverUrl, (status) -> {
+                Platform.runLater(() -> {
+                    if (status.contains("Connected")) {
+                        // Subscribe to room topic for real-time updates (game start, player join/leave)
+                        webSocketService.subscribeToGameTopic(roomId, (message) -> {
+                            Platform.runLater(() -> handleRoomUpdate(message));
+                        });
+                        
+                        // Join the room for notifications
+                        String playerName = SessionManager.getUsername() != null ? 
+                                          SessionManager.getUsername() : "Player1";
+                        webSocketService.joinGame(roomId, playerName);
+                        
+                        updateRoomStatus("Connected to room: " + roomId + " via WebSocket");
+                    } else {
+                        // Fallback to polling if WebSocket fails
+                        startRoomStatusPolling(roomId);
+                        updateRoomStatus("Connected to room: " + roomId + " via REST polling");
+                    }
+                });
+            });
+            
+        } catch (Exception e) {
+            System.out.println("Room bağlantı hatası: " + e.getMessage());
+            // Fallback to polling
+            startRoomStatusPolling(roomId);
+            updateRoomStatus("Connected to room: " + roomId + " via REST polling (WebSocket failed)");
+        }
+    }
+    
+    private void startRoomStatusPolling(String roomId) {
+
+        Thread pollingThread = new Thread(() -> {
+            while (currentRoomId != null && currentRoomId.equals(roomId)) {
+                try {
+                    Map<String, Object> roomStatus = apiService.getRoomStatus(roomId);
+                    
+                    Platform.runLater(() -> {
+                        if (roomStatus != null && (Boolean) roomStatus.get("success")) {
+                            Integer playerCount = (Integer) roomStatus.get("playerCount");
+                            @SuppressWarnings("unchecked")
+                            List<String> players = (List<String>) roomStatus.get("players");
+                            
+                            if (playerCount != null && players != null) {
+                                updateRoomStatus("Players in room (" + playerCount + "/4): " + 
+                                               String.join(", ", players));
+                                
+
+                                if (playerCount >= 2) {
+                                    startGameButton.setDisable(false);
+                                } else {
+                                    startGameButton.setDisable(true);
+                                }
+                            }
+                        }
+                    });
+                    
+                    Thread.sleep(3000);
+                } catch (Exception e) {
+                    System.out.println("Room status polling hatası: " + e.getMessage());
+                    break;
+                }
+            }
+        });
+        pollingThread.setDaemon(true);
+        pollingThread.start();
+    }
+    
+    private void handleRoomUpdate(Map<String, Object> message) {
+        try {
+            String type = (String) message.get("type");
+            System.out.println("Room update alındı: " + type);
+            
+            switch (type) {
+                case "PLAYER_CONNECTED":
+                    // Handle player connection to room - just update status
+                    String connectedPlayer = (String) message.get("player");
+                    if (connectedPlayer != null) {
+                        updateRoomStatus(connectedPlayer + " connected to room");
+                    }
+                    break;
+                    
+                case "PLAYER_JOINED":
+                    String joinedPlayer = (String) message.get("player");
+                    Integer playerCount = (Integer) message.get("playerCount");
+                    updateRoomStatus(joinedPlayer + " joined! Players: " + playerCount + "/4");
+                    
+
+                    if (playerCount >= 2) {
+                        startGameButton.setDisable(false);
+                        if (isRoomCreator) {
+                            updateRoomStatus("Ready to start! Click 'Start Game'");
+                        }
+                    }
+                    break;
+                    
+                case "PLAYER_LEFT":
+                    String leftPlayer = (String) message.get("player");
+                    Integer remainingCount = (Integer) message.get("playerCount");
+                    updateRoomStatus(leftPlayer + " left. Players: " + remainingCount + "/4");
+                    
+
+                    if (remainingCount < 2) {
+                        startGameButton.setDisable(true);
+                        updateRoomStatus("Waiting for more players... (" + remainingCount + "/4)");
+                    }
+                    break;
+                    
+                case "GAME_STARTED":
+                    // Check if transition is already in progress
+                    if (gameTransitionInProgress) {
+                        System.out.println("Game transition already in progress, ignoring duplicate GAME_STARTED message");
+                        return;
+                    }
+                    
+                    // Another player started the game - automatically join the game
+                    System.out.println("Game started by another player - automatically joining...");
+                    updateRoomStatus("Game started! Joining game...");
+                    
+                    // Set flag to prevent duplicate transitions
+                    gameTransitionInProgress = true;
+                    
+                    Platform.runLater(() -> {
+                        try {
+                            // Validate that we still have the room management UI visible
+                            if (multiplayerRoomOverlay == null || !multiplayerRoomOverlay.isVisible()) {
+                                System.out.println("Room overlay not visible, skipping auto-join");
+                                gameTransitionInProgress = false;
+                                return;
+                            }
+                            
+                            // Validate room ID
+                            if (currentRoomId == null || currentRoomId.trim().isEmpty()) {
+                                System.out.println("No current room ID, cannot auto-join game");
+                                gameTransitionInProgress = false;
+                                return;
+                            }
+                            
+                            // Get stage from a reliable source - try multiple UI elements
+                            Stage stage = null;
+                            
+                            // Try to get stage from multiple UI elements
+                            if (multiplayerRoomOverlay.getScene() != null && multiplayerRoomOverlay.getScene().getWindow() instanceof Stage) {
+                                stage = (Stage) multiplayerRoomOverlay.getScene().getWindow();
+                            } else if (startGameButton.getScene() != null && startGameButton.getScene().getWindow() instanceof Stage) {
+                                stage = (Stage) startGameButton.getScene().getWindow();
+                            } else if (createRoomButton.getScene() != null && createRoomButton.getScene().getWindow() instanceof Stage) {
+                                stage = (Stage) createRoomButton.getScene().getWindow();
+                            }
+                            
+                            if (stage == null) {
+                                System.out.println("Cannot get stage reference - stage is null");
+                                showMultiplayerError("Failed to join started game: Cannot access window");
+                                gameTransitionInProgress = false;
+                                return;
+                            }
+                            
+                            // Use the same logic as handleStartMultiplayerGame
+                            String roomIdToUse = currentRoomId;
+                            boolean roomCreator = isRoomCreator;
+                            
+                            // Stop polling
+                            stopRoomStatusPolling();
+                            
+                            // Close the overlay
+                            multiplayerRoomOverlay.setVisible(false);
+                            
+                            // Start the multiplayer game
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/View/gameBoard.fxml"));
+                            loader.setControllerFactory(context::getBean);
+                            Parent root = loader.load();
+                            
+                            GameBoardController gameBoardController = loader.getController();
+                            gameBoardController.setPlayerName(SessionManager.getUsername());
+                            gameBoardController.initializeMultiPlayerWithRoom(roomIdToUse, roomCreator);
+                            
+                            Scene scene = new Scene(root);
+                            stage.setScene(scene);
+                            
+                            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                            stage.setX(screenBounds.getMinX());
+                            stage.setY(screenBounds.getMinY());
+                            stage.setWidth(screenBounds.getWidth());
+                            stage.setHeight(screenBounds.getHeight());
+                            stage.setMaximized(true);
+                            
+                            System.out.println("Successfully transitioned to multiplayer game");
+                            
+                        } catch (Exception e) {
+                            System.out.println("Failed to auto-join started game: " + e.getMessage());
+                            e.printStackTrace();
+                            showMultiplayerError("Failed to join started game: " + e.getMessage());
+                        } finally {
+                            gameTransitionInProgress = false;
+                        }
+                    });
+                    break;
+                    
+                default:
+                    System.out.println("Unknown room message type: " + type);
+            }
+        } catch (Exception e) {
+            System.out.println("Room message error: " + e.getMessage());
+            e.printStackTrace();
+            gameTransitionInProgress = false;
+        }
+    }
+    
+    private void updateRoomStatus(String message) {
+        if (multiplayerStatusLabel != null) {
+            multiplayerStatusLabel.setText(message);
+            multiplayerStatusLabel.setVisible(true);
+            multiplayerStatusLabel.setStyle("-fx-text-fill: #3498db;");
+        }
+    }
+
+    private void stopRoomStatusPolling() {
+        System.out.println("Stopping room status polling...");
+
+        currentRoomId = null;
+        updateRoomStatus("Game starting... Polling stopped.");
     }
 } 

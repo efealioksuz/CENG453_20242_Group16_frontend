@@ -191,6 +191,12 @@
         </ImageView>
     </VBox>
 
+    <!-- WebSocket Status Label -->
+    <Label fx:id="webSocketStatusLabel" text="WebSocket: Disconnected" 
+           style="-fx-text-fill: red; -fx-font-weight: bold; -fx-font-size: 14px;"
+           visible="false" managed="true" 
+           GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.halignment="RIGHT" />
+
     <!-- Game Over Overlay -->
     <StackPane fx:id="gameOverOverlay" visible="false" 
                GridPane.columnSpan="3" GridPane.rowSpan="4"

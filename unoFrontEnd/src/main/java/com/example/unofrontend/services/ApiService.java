@@ -24,12 +24,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class ApiService {
     private static final Logger logger = LoggerFactory.getLogger(ApiService.class);
 
-    @Value("${api.base-url:https://ceng453-20242-group16-backend.onrender.com}")
+    @Value("${api.base-url:http://localhost:8080}")
     private String baseUrl;
 
     @Autowired
@@ -294,6 +296,121 @@ public class ApiService {
         } catch (Exception e) {
             logger.error("Error updating daily score", e);
             return "An error occurred while updating daily score: " + e.getMessage();
+        }
+    }
+
+    // Room Management Methods
+    public Map<String, Object> createRoom(String playerName) {
+        try {
+            logger.info("Creating room for player: {}", playerName);
+            
+            String url = baseUrl + "/api/game/create-room";
+            
+            HttpHeaders headers = createAuthHeadersWithToken();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            Map<String, String> request = new HashMap<>();
+            request.put("playerName", playerName);
+            
+            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(request, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                url,
+                requestEntity,
+                Map.class
+            );
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                logger.info("Room created successfully");
+                return (Map<String, Object>) response.getBody();
+            }
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Failed to create room");
+            return errorResponse;
+            
+        } catch (Exception e) {
+            logger.error("Error creating room", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error creating room: " + e.getMessage());
+            return errorResponse;
+        }
+    }
+    
+    public Map<String, Object> joinRoom(String roomId, String playerName) {
+        try {
+            logger.info("Joining room {} for player: {}", roomId, playerName);
+            
+            String url = baseUrl + "/api/game/join-room";
+            
+            HttpHeaders headers = createAuthHeadersWithToken();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            Map<String, String> request = new HashMap<>();
+            request.put("roomId", roomId);
+            request.put("playerName", playerName);
+            
+            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(request, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                url,
+                requestEntity,
+                Map.class
+            );
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                logger.info("Joined room successfully");
+                return (Map<String, Object>) response.getBody();
+            }
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Failed to join room");
+            return errorResponse;
+            
+        } catch (Exception e) {
+            logger.error("Error joining room", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error joining room: " + e.getMessage());
+            return errorResponse;
+        }
+    }
+    
+    public Map<String, Object> getRoomStatus(String roomId) {
+        try {
+            logger.info("Getting status for room: {}", roomId);
+            
+            String url = baseUrl + "/api/game/room/" + roomId + "/status";
+            
+            HttpHeaders headers = createAuthHeadersWithToken();
+            HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+            
+            ResponseEntity<Map> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                Map.class
+            );
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                logger.info("Room status retrieved successfully");
+                return (Map<String, Object>) response.getBody();
+            }
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Failed to get room status");
+            return errorResponse;
+            
+        } catch (Exception e) {
+            logger.error("Error getting room status", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error getting room status: " + e.getMessage());
+            return errorResponse;
         }
     }
 }

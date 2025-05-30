@@ -126,5 +126,54 @@
                 </TableView>
             </VBox>
         </StackPane>
+        <!-- Multiplayer Room Management Overlay -->
+        <StackPane fx:id="multiplayerRoomOverlay" visible="false" 
+                   style="-fx-background-color: rgba(0, 0, 0, 0.7);"
+                   mouseTransparent="false">
+            <VBox alignment="CENTER" spacing="20" 
+                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 40;">
+                <Label text="Multiplayer Room" 
+                       style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                
+                <!-- Create Room Section -->
+                <VBox alignment="CENTER" spacing="10">
+                    <Label text="Create New Room" 
+                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    <Button fx:id="createRoomButton" text="Create Room" 
+                            onAction="#handleCreateRoom"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;"/>
+                    <Label fx:id="roomIdLabel" text="" 
+                           style="-fx-font-size: 14px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;"
+                           visible="false"/>
+                </VBox>
+                
+                <Label text="OR" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                
+                <!-- Join Room Section -->
+                <VBox alignment="CENTER" spacing="10">
+                    <Label text="Join Existing Room" 
+                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    <TextField fx:id="roomIdInput" promptText="Enter Room ID"
+                              style="-fx-font-size: 14px; -fx-padding: 8; -fx-min-width: 200px;"/>
+                    <Button fx:id="joinRoomButton" text="Join Room" 
+                            onAction="#handleJoinRoom"
+                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;"/>
+                </VBox>
+                
+                <!-- Status and Controls -->
+                <Label fx:id="multiplayerStatusLabel" text="" 
+                       style="-fx-font-size: 14px; -fx-text-fill: #e74c3c;"
+                       visible="false"/>
+                
+                <HBox alignment="CENTER" spacing="15">
+                    <Button text="Cancel" onAction="#closeMultiplayerRoomOverlay" 
+                            style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 15;"/>
+                    <Button fx:id="startGameButton" text="Start Game" 
+                            onAction="#handleStartMultiplayerGame"
+                            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 15;"
+                            visible="false"/>
+                </HBox>
+            </VBox>
+        </StackPane>
     </StackPane>
 </AnchorPane> 

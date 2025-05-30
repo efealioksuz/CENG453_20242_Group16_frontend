@@ -14,6 +14,9 @@ public class GameState {
     private int drawStack;
     private Random random;
     private int direction = 1;
+    private boolean wildDrawFourChallenge = false;
+    private int challengingPlayer = -1;
+    private int challengedPlayer = -1;
 
     public GameState() {
         this.deck = new ArrayList<>();
@@ -181,6 +184,8 @@ public class GameState {
             currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
         } else if (card.value.equals("Wild Draw Four")) {
             drawStack = 4;
+            wildDrawFourChallenge = true;
+            challengedPlayer = playerIndex;
             currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
         } else {
             currentPlayerIndex = (currentPlayerIndex + direction + 4) % 4;
@@ -252,5 +257,63 @@ public class GameState {
 
     public void reverseDirection() {
         direction = -direction;
+    }
+
+    public boolean canChallengeWildDrawFour() {
+        if (discardPile.isEmpty()) return false;
+        CardData topCard = discardPile.get(discardPile.size() - 1);
+        return topCard.value.equals("Wild Draw Four") && wildDrawFourChallenge;
+    }
+
+    public void challengeWildDrawFour(int challengingPlayerIndex) {
+        if (!canChallengeWildDrawFour()) {
+            throw new IllegalStateException("Cannot challenge Wild Draw Four");
+        }
+        
+        this.challengingPlayer = challengingPlayerIndex;
+        this.wildDrawFourChallenge = false;
+        
+        List<CardData> challengedPlayerHand = playerHands.get(challengedPlayer);
+        boolean hasValidCard = false;
+        
+        for (CardData card : challengedPlayerHand) {
+            if (card.color.equals(currentColor) && !card.value.equals("Wild Draw Four")) {
+                hasValidCard = true;
+                break;
+            }
+        }
+        
+        if (hasValidCard) {
+            System.out.println("Challenge successful! Player " + challengedPlayer + " had a valid card.");
+            for (int i = 0; i < 4; i++) {
+                CardData card = drawCard();
+                if (card != null) {
+                    challengedPlayerHand.add(card);
+                }
+            }
+            drawStack = 0;
+        } else {
+            System.out.println("Challenge failed! Player " + challengingPlayer + " draws 6 cards.");
+            List<CardData> challengingPlayerHand = playerHands.get(challengingPlayer);
+            for (int i = 0; i < 6; i++) {
+                CardData card = drawCard();
+                if (card != null) {
+                    challengingPlayerHand.add(card);
+                }
+            }
+            drawStack = 0;
+        }
+    }
+
+    public boolean isWildDrawFourChallengeActive() {
+        return wildDrawFourChallenge;
+    }
+
+    public int getChallengingPlayer() {
+        return challengingPlayer;
+    }
+
+    public int getChallengedPlayer() {
+        return challengedPlayer;
     }
 } 
