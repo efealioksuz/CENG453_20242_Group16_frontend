@@ -56,7 +56,7 @@
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label fx:id="player3Label" text="PLAYER 3" styleClass="uno-player-label,ai-player"/>
-            <Label fx:id="player3UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
+            <Label fx:id="player3UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false" minWidth="45" minHeight="45" maxWidth="45" maxHeight="45" style="-fx-alignment: center; -fx-text-alignment: center;"/>
             <ImageView fx:id="topPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
                 <image>
                     <Image url="@../images/up-arrow.png"/>
@@ -74,7 +74,7 @@
         <VBox alignment="CENTER" spacing="5">
             <HBox alignment="CENTER" spacing="10" rotate="90">
                 <Label fx:id="player2Label" text="PLAYER 2" styleClass="uno-player-label,ai-player"/>
-                <Label fx:id="player2UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
+                <Label fx:id="player2UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false" minWidth="45" minHeight="45" maxWidth="45" maxHeight="45" style="-fx-alignment: center; -fx-text-alignment: center;"/>
                 <ImageView fx:id="leftPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
                     <image>
                         <Image url="@../images/bottom-arrow.png"/>
@@ -116,16 +116,15 @@
 
     <!-- Right Player -->
     <HBox alignment="CENTER" spacing="-55" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.rowSpan="2">
-      
         <VBox alignment="CENTER" spacing="5">
             <HBox alignment="CENTER" spacing="10" rotate="-90">
+                <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player"/>
+                <Label fx:id="player4UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false" minWidth="45" minHeight="45" maxWidth="45" maxHeight="45" style="-fx-alignment: center; -fx-text-alignment: center;"/>
                 <ImageView fx:id="rightPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
                     <image>
                         <Image url="@../images/bottom-arrow.png"/>
                     </image>
                 </ImageView>
-                <Label fx:id="player4UnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
-                <Label fx:id="player4Label" text="PLAYER 4" styleClass="uno-player-label,ai-player"/>
             </HBox>
         </VBox>
         <VBox fx:id="opponentHandBoxRight" alignment="CENTER" spacing="-100" maxHeight="350">
@@ -142,7 +141,7 @@
         </padding>
         <HBox alignment="CENTER" spacing="10">
             <Label fx:id="playerNameLabel" text="YOU" styleClass="uno-player-label,current-player"/>
-            <Label fx:id="playerUnoIndicator" text="UNO" styleClass="uno-indicator" visible="false"/>
+            <Label fx:id="playerUnoIndicator" text="UNO" styleClass="uno-indicator" visible="false" minWidth="45" minHeight="45" maxWidth="45" maxHeight="45" style="-fx-alignment: center; -fx-text-alignment: center;"/>
             <ImageView fx:id="bottomPlayerArrow" fitWidth="40" fitHeight="40" preserveRatio="true" styleClass="turn-arrow" visible="false">
                 <image>
                     <Image url="@../images/bottom-arrow.png"/>

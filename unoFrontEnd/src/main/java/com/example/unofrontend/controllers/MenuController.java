@@ -115,6 +115,7 @@ public class MenuController {
     private String currentRoomId;
     private boolean isRoomCreator = false;
     private boolean gameTransitionInProgress = false;
+    private boolean hasSentPlayerReady = false;
 
     @FXML
     public void initialize() {
@@ -243,7 +244,7 @@ public class MenuController {
                             
                             joinRoomButton.setDisable(true);
                             roomIdInput.setDisable(true);
-                            startGameButton.setVisible(true);
+                            startGameButton.setVisible(isRoomCreator);
                             startGameButton.setDisable(true);
                             
 
@@ -306,7 +307,7 @@ public class MenuController {
                             
                             createRoomButton.setDisable(true);
                             roomIdInput.setDisable(true);
-                            startGameButton.setVisible(true);
+                            startGameButton.setVisible(isRoomCreator);
                             startGameButton.setDisable(true);
                             
 
@@ -476,6 +477,7 @@ public class MenuController {
         currentRoomId = null;
         isRoomCreator = false;
         gameTransitionInProgress = false;
+        hasSentPlayerReady = false;
         
         roomIdLabel.setVisible(false);
         multiplayerStatusLabel.setVisible(false);
@@ -510,11 +512,40 @@ public class MenuController {
                             Platform.runLater(() -> handleRoomUpdate(message));
                         });
                         
+                        // Subscribe to error queue for per-user errors
+                        webSocketService.subscribeToErrors((message) -> {
+                            Platform.runLater(() -> {
+                                String errorMsg = (String) message.get("message");
+                                if (errorMsg != null) {
+                                    System.out.println("[WebSocket ERROR] " + errorMsg);
+                                }
+                                @SuppressWarnings("unchecked")
+                                java.util.List<String> notReadyPlayers = (java.util.List<String>) message.get("notReadyPlayers");
+                                if (notReadyPlayers != null && !notReadyPlayers.isEmpty()) {
+                                    System.out.println("[WebSocket ERROR] Not ready players: " + notReadyPlayers);
+                                }
+                            });
+                        });
+                        
                         // Join the room for notifications
                         String playerName = SessionManager.getUsername() != null ? 
                                           SessionManager.getUsername() : "Player1";
                         webSocketService.joinGame(roomId, playerName);
-                        
+
+                        // Subscribe to game state queue for readiness
+                        webSocketService.subscribeToGameState((message) -> {
+                            System.out.println("[Lobby] Received game state message: " + message.get("type"));
+                        });
+                        // Only send PLAYER_READY if not already sent
+                        if (!hasSentPlayerReady) {
+                            Map<String, String> readyMessage = new HashMap<>();
+                            readyMessage.put("gameId", roomId);
+                            readyMessage.put("player", playerName);
+                            readyMessage.put("type", "PLAYER_READY");
+                            webSocketService.sendMessage("/app/playerReady", readyMessage);
+                            System.out.println("[Lobby] PLAYER_READY sent for player: " + playerName + ", room: " + roomId);
+                            hasSentPlayerReady = true;
+                        }
                         updateRoomStatus("Connected to room: " + roomId + " via WebSocket");
                     } else {
                         // Fallback to polling if WebSocket fails
@@ -575,6 +606,29 @@ public class MenuController {
             String type = (String) message.get("type");
             System.out.println("Room update alındı: " + type);
             
+            // Check for readyStates in every message
+            @SuppressWarnings("unchecked")
+            Map<String, Boolean> readyStates = (Map<String, Boolean>) message.get("readyStates");
+            if (readyStates != null) {
+                boolean allReady = !readyStates.isEmpty() && readyStates.values().stream().allMatch(Boolean::booleanValue);
+                if (isRoomCreator) {
+                    startGameButton.setDisable(!allReady);
+                    startGameButton.setVisible(true);
+                    if (allReady) {
+                        updateRoomStatus("All players are ready! You can start the game.");
+                    } else {
+                        updateRoomStatus("Waiting for all players to be ready...");
+                    }
+                }
+            }
+
+            // Log notReadyPlayers if present
+            @SuppressWarnings("unchecked")
+            java.util.List<String> notReadyPlayers = (java.util.List<String>) message.get("notReadyPlayers");
+            if (notReadyPlayers != null && !notReadyPlayers.isEmpty()) {
+                System.out.println("[Lobby] Not ready players: " + notReadyPlayers);
+            }
+
             switch (type) {
                 case "PLAYER_CONNECTED":
                     // Handle player connection to room - just update status
@@ -590,10 +644,22 @@ public class MenuController {
                     updateRoomStatus(joinedPlayer + " joined! Players: " + playerCount + "/4");
                     
 
-                    if (playerCount >= 2) {
-                        startGameButton.setDisable(false);
-                        if (isRoomCreator) {
-                            updateRoomStatus("Ready to start! Click 'Start Game'");
+                    if (playerCount != null) {
+                        if (playerCount >= 2) {
+                            if (isRoomCreator) {
+                                startGameButton.setDisable(false);
+                                startGameButton.setVisible(true);
+                                updateRoomStatus("Ready to start! Click 'Start Game'");
+                            } else {
+                                startGameButton.setVisible(false);
+                            }
+                        } else {
+                            startGameButton.setDisable(true);
+                            if (isRoomCreator) {
+                                startGameButton.setVisible(true);
+                            } else {
+                                startGameButton.setVisible(false);
+                            }
                         }
                     }
                     break;
@@ -720,8 +786,8 @@ public class MenuController {
 
     private void stopRoomStatusPolling() {
         System.out.println("Stopping room status polling...");
-
         currentRoomId = null;
+        hasSentPlayerReady = false;
         updateRoomStatus("Game starting... Polling stopped.");
     }
 } 

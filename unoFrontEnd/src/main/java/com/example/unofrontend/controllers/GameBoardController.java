@@ -369,13 +369,14 @@ public class GameBoardController {
                     // Set up game state subscription for this specific game
                     setupGameStateSubscription(webSocketService);
                     
-                    // Send start game request after a short delay to ensure subscription is ready
-                    Timeline delayedStartRequest = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-                        sendStartGameRequest();
-                        System.out.println("Start game request sent for room: " + roomId);
-                    }));
-                    delayedStartRequest.play();
-                    
+                    // Only the creator should send the start game request
+                    if (isRoomCreator) {
+                        Timeline delayedStartRequest = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                            sendStartGameRequest();
+                            System.out.println("Start game request sent for room: " + roomId);
+                        }));
+                        delayedStartRequest.play();
+                    }
                 } else {
                     System.out.println("WebSocket not connected, creating new connection");
                     connectToWebSocketWithRoom(roomId);
@@ -392,18 +393,31 @@ public class GameBoardController {
     private void setupGameStateSubscription(WebSocketService webSocketService) {
         // Subscribe to individual game state (with playerIndex)
         webSocketService.subscribeToGameState((message) -> {
-            System.out.println("Received WebSocket message: " + message.get("type"));
+            System.out.println("[GameBoard] Received game state message: " + message);
             Platform.runLater(() -> handleWebSocketMessage(message));
         });
         
         System.out.println("Game state subscription set up for room: " + gameRoomId);
+
+        // Send GET_GAME_STATE message after subscription is set up
+        try {
+            Map<String, String> getStateMessage = new HashMap<>();
+            getStateMessage.put("gameId", gameRoomId);
+            getStateMessage.put("player", playerName);
+            getStateMessage.put("type", "GET_GAME_STATE");
+            webSocketService.sendMessage("/app/getGameState", getStateMessage);
+            System.out.println("GET_GAME_STATE message sent for player: " + playerName + ", room: " + gameRoomId);
+        } catch (Exception e) {
+            System.err.println("Failed to send GET_GAME_STATE message: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void addPlaceholderCards(Pane handBox, int count) {
         handBox.getChildren().clear();
         for (int i = 0; i < count; i++) {
             StackPane placeholderCard = createClosedCard();
-            placeholderCard.setOpacity(0.7); // Make them slightly transparent
+            placeholderCard.setOpacity(1.0); // Remove transparency
             handBox.getChildren().add(placeholderCard);
         }
     }
@@ -854,7 +868,11 @@ public class GameBoardController {
         else if (handBox == opponentHandBoxRight) playerIndex = 3;
         
         if (playerIndex != -1) {
-            updateUnoIndicator(playerIndex, cards.size());
+            // Only use direct mapping in single player mode
+            if (!isMultiplayerGame) {
+                updateUnoIndicator(playerIndex, cards.size());
+            }
+            // In multiplayer, UNO indicators are updated elsewhere with the mapping function
         }
     }
 
@@ -1338,7 +1356,6 @@ public class GameBoardController {
             case 3 -> player4UnoIndicator;
             default -> null;
         };
-        
         if (indicator != null) {
             indicator.setVisible(cardCount > 0);
             if (cardCount == 1) {
@@ -1346,6 +1363,7 @@ public class GameBoardController {
             } else {
                 indicator.getStyleClass().remove("uno-warning");
             }
+            System.out.println("UNO indicator for player " + playerIndex + " set visible=" + indicator.isVisible() + ", cardCount=" + cardCount);
         }
     }
 
@@ -1428,65 +1446,54 @@ public class GameBoardController {
         try {
             System.out.println("WebSocket connection is starting... Room: " + roomId);
             updateWebSocketStatus("WebSocket: Attempting to connect...");
-            
             // Set room ID BEFORE connecting
             this.gameRoomId = roomId;
-            
             WebSocketService webSocketService = context.getBean(WebSocketService.class);
-            
             // Check if already connected (from MenuController)
             if (webSocketService.isConnected()) {
                 System.out.println("WebSocket already connected, reusing existing connection");
                 updateWebSocketStatus("WebSocket: Connected (reused)");
                 isWebSocketConnected = true;
-                
                 // Set up game subscription for this specific room
                 setupGameStateSubscription(webSocketService);
-                
-                // Send start game request after subscription is set up
-                Timeline delayedStartRequest = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-                    sendStartGameRequest();
-                    System.out.println("Start game request sent after reusing WebSocket connection for room: " + roomId);
-                }));
-                delayedStartRequest.play();
-                
+                // Only the creator should send the start game request
+                if (isRoomCreator) {
+                    Timeline delayedStartRequest = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                        sendStartGameRequest();
+                        System.out.println("Start game request sent after reusing WebSocket connection for room: " + roomId);
+                    }));
+                    delayedStartRequest.play();
+                }
                 return;
             }
-            
             // If not connected, create new connection
             String serverUrl = "http://localhost:8080/uno-websocket";
-            
             webSocketService.connect(serverUrl, (status) -> {
                 Platform.runLater(() -> {
                     updateWebSocketStatus("WebSocket: " + status);
                     if (status.contains("Connected")) {
                         isWebSocketConnected = true;
-                        
                         System.out.println("Using backend room ID: " + roomId);
-                        
                         String playerName = SessionManager.getUsername() != null ? 
                                           SessionManager.getUsername() : "Player1";
-                        
                         // Set up game subscription for this specific room
                         setupGameStateSubscription(webSocketService);
-                        
                         // Join the game room
                         webSocketService.joinGame(roomId, playerName);
-                        
-                        // Send start game request after WebSocket connection is established
-                        Timeline delayedStartRequest = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-                            sendStartGameRequest();
-                            System.out.println("Start game request sent after WebSocket connection for room: " + roomId);
-                        }));
-                        delayedStartRequest.play();
-                        
+                        // Only the creator should send the start game request
+                        if (isRoomCreator) {
+                            Timeline delayedStartRequest = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                                sendStartGameRequest();
+                                System.out.println("Start game request sent after WebSocket connection for room: " + roomId);
+                            }));
+                            delayedStartRequest.play();
+                        }
                     } else {
                         isWebSocketConnected = false;
                         updateWebSocketStatus("WebSocket: Connection failed");
                     }
                 });
             });
-            
         } catch (Exception e) {
             System.out.println("WebSocket connection error: " + e.getMessage());
             e.printStackTrace();
@@ -1499,10 +1506,12 @@ public class GameBoardController {
     private void handleWebSocketMessage(Map<String, Object> message) {
         Platform.runLater(() -> {
             String type = (String) message.get("type");
-            System.out.println("Received WebSocket message: " + type);
+            System.out.println("[WebSocket] Received message type: " + type);
             
             switch (type) {
                 case "GAME_STARTED":
+                case "GAME_STATE":
+                    System.out.println("[WebSocket] " + type + " event received, calling handleMultiplayerGameStarted");
                     handleMultiplayerGameStarted(message);
                     break;
                 case "CARD_PLAYED":
@@ -1518,7 +1527,6 @@ public class GameBoardController {
                 case "INVALID_MOVE":
                     String errorMessage = (String) message.get("message");
                     System.out.println("Game error: " + errorMessage);
-
                     break;
                 default:
                     System.out.println("Unknown message type: " + type);
@@ -1529,6 +1537,7 @@ public class GameBoardController {
     @SuppressWarnings("unchecked")
     private void handleMultiplayerGameStarted(Map<String, Object> message) {
         try {
+            System.out.println("[handleMultiplayerGameStarted] Called with message: " + message);
             // Get player data
             List<String> players = (List<String>) message.get("players");
             List<Map<String, Object>> playerHand = (List<Map<String, Object>>) message.get("playerHand");
@@ -1538,27 +1547,17 @@ public class GameBoardController {
             String currentColor = (String) message.get("currentColor");
             Integer direction = (Integer) message.get("direction");
             Integer playerIndex = (Integer) message.get("playerIndex");
-            
-            System.out.println("Game started! Players: " + players);
-            System.out.println("Current player: " + currentPlayer);
-            System.out.println("My index: " + playerIndex);
-            System.out.println("My hand size: " + (playerHand != null ? playerHand.size() : 0));
-            
-            // Initialize a minimal GameState for UI purposes ONLY
-            if (gameState == null) {
-                gameState = new GameState();
-                // Set basic properties that the UI needs
-                gameState.setCurrentColor(currentColor != null ? currentColor : "red");
-                // Use reverseDirection if needed to set direction
-                boolean isClockwise = direction == null || direction == 1;
-                if (!isClockwise && gameState.isClockwise()) {
-                    gameState.reverseDirection();
-                }
-                System.out.println("Minimal GameState initialized for UI purposes");
+
+            System.out.println("players: " + players + ", playerIndex: " + playerIndex + ", currentPlayer: " + currentPlayer + ", playerName: " + playerName);
+
+            if (players == null || playerIndex == null) {
+                System.err.println("ERROR: players or playerIndex is null, skipping rendering!");
+                return;
             }
-            
+
             // Set turn status
-            isPlayerTurn = currentPlayer.equals(playerName);
+            isPlayerTurn = currentPlayer != null && currentPlayer.equals(playerName);
+            System.out.println("isPlayerTurn: " + isPlayerTurn);
             
             // Clear all hands first
             playerHandBoxBottom.getChildren().clear();
@@ -1586,15 +1585,38 @@ public class GameBoardController {
                     if (i != playerIndex.intValue()) { // Skip my own index
                         String player = players.get(i);
                         int handSize = handSizes.getOrDefault(player, 7);
-                        
-                        // Determine which hand box to use based on relative position
                         Pane targetHandBox = getHandBoxForPlayerIndex(i, playerIndex, players.size());
+                        System.out.println("Mapping: player='" + player + "' index=" + i + " handSize=" + handSize + " -> handBox=" + (targetHandBox != null ? targetHandBox.getId() : "null"));
                         if (targetHandBox != null) {
                             addPlaceholderCards(targetHandBox, handSize);
-                            System.out.println("Added " + handSize + " placeholder cards for player " + player + " at position " + i);
+                            // Update UNO indicator using the correct mapping
+                            Label unoIndicator = getUnoIndicatorForPlayerIndex(i, playerIndex, players.size());
+                            if (unoIndicator != null) {
+                                unoIndicator.setVisible(handSize > 0);
+                                if (handSize == 1) {
+                                    unoIndicator.getStyleClass().add("uno-warning");
+                                    unoIndicator.setText("UNO!");
+                                } else {
+                                    unoIndicator.getStyleClass().remove("uno-warning");
+                                    unoIndicator.setText("UNO");
+                                }
+                                unoIndicator.toFront();
+                                System.out.println("[handleMultiplayerGameStarted] Updated UNO indicator for player " + i + " with handSize=" + handSize);
+                            }
                         }
                     }
                 }
+                // Always update your own UNO indicator
+                int myHandSize = handSizes.getOrDefault(players.get(playerIndex), 0);
+                playerUnoIndicator.setVisible(myHandSize > 0);
+                if (myHandSize == 1) {
+                    playerUnoIndicator.getStyleClass().add("uno-warning");
+                    playerUnoIndicator.setText("UNO!");
+                } else {
+                    playerUnoIndicator.getStyleClass().remove("uno-warning");
+                    playerUnoIndicator.setText("UNO");
+                }
+                playerUnoIndicator.toFront();
             }
             
             // Set top card
@@ -1656,10 +1678,9 @@ public class GameBoardController {
     
     private Pane getHandBoxForPlayerIndex(int otherPlayerIndex, int myIndex, int totalPlayers) {
         if (totalPlayers == 2) {
-            // In 2-player game, other player is always opposite (top)
-            return playerHandBoxTop;
+            // In 2-player game, opponent is always at the top
+            return otherPlayerIndex == myIndex ? playerHandBoxBottom : playerHandBoxTop;
         } else if (totalPlayers == 3) {
-            // 3-player game: determine relative position
             int relativePos = (otherPlayerIndex - myIndex + totalPlayers) % totalPlayers;
             switch (relativePos) {
                 case 1: return opponentHandBoxLeft; // Next player
@@ -1786,6 +1807,28 @@ public class GameBoardController {
                     System.out.println("Set right player name: " + playerName);
                 }
             }
+        }
+    }
+
+    private Label getUnoIndicatorForPlayerIndex(int otherPlayerIndex, int myIndex, int totalPlayers) {
+        if (totalPlayers == 2) {
+            // You: always index 0 (bottom), Opponent: always index 1 (top)
+            return otherPlayerIndex == myIndex ? playerUnoIndicator : player3UnoIndicator;
+        } else if (totalPlayers == 3) {
+            int rel = (otherPlayerIndex - myIndex + totalPlayers) % totalPlayers;
+            return switch (rel) {
+                case 1 -> player2UnoIndicator;
+                case 2 -> player3UnoIndicator;
+                default -> player4UnoIndicator;
+            };
+        } else { // 4 players
+            int rel = (otherPlayerIndex - myIndex + totalPlayers) % totalPlayers;
+            return switch (rel) {
+                case 1 -> player2UnoIndicator;
+                case 2 -> player3UnoIndicator;
+                case 3 -> player4UnoIndicator;
+                default -> playerUnoIndicator;
+            };
         }
     }
 } 
