@@ -232,6 +232,29 @@ public class WebSocketService {
         return gameRoomId;
     }
 
+    public void subscribeToErrors(Consumer<Map<String, Object>> messageHandler) {
+        if (!connected || stompSession == null) {
+            logger.error("Cannot subscribe to errors: not connected");
+            return;
+        }
+        stompSession.subscribe("/user/queue/errors", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return Map.class;
+            }
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                if (payload instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> message = (Map<String, Object>) payload;
+                    messageHandler.accept(message);
+                    notifyStatusListeners("Error message received");
+                }
+            }
+        });
+        notifyStatusListeners("Subscribed to error queue");
+    }
+
     private class CustomStompSessionHandler extends StompSessionHandlerAdapter {
         private final Consumer<String> statusCallback;
 
