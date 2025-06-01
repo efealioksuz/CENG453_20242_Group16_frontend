@@ -31,7 +31,7 @@ import java.util.HashMap;
 public class ApiService {
     private static final Logger logger = LoggerFactory.getLogger(ApiService.class);
 
-    @Value("${api.base-url:http://localhost:8080}")
+    @Value("${api.base-url:https://ceng453-20242-group16-backend.onrender.com/}")
     private String baseUrl;
 
     @Autowired
