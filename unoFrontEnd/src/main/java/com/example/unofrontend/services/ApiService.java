@@ -40,6 +40,10 @@ public class ApiService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
     public String login(LoginRequest loginRequest) {
         try {
             logger.info("Attempting login for user: {}", loginRequest.getUsername());

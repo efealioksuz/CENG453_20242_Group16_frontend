@@ -1385,7 +1385,7 @@ public class GameBoardController {
             updateWebSocketStatus("WebSocket: Attempting to connect...");
             
             WebSocketService webSocketService = context.getBean(WebSocketService.class);
-            String serverUrl = "http://localhost:8080/uno-websocket";
+            String serverUrl = apiService.getBaseUrl() + "/uno-websocket";
             
             webSocketService.connect(serverUrl, (status) -> {
                 Platform.runLater(() -> {
@@ -1467,7 +1467,7 @@ public class GameBoardController {
                 return;
             }
             // If not connected, create new connection
-            String serverUrl = "http://localhost:8080/uno-websocket";
+            String serverUrl = apiService.getBaseUrl() + "/uno-websocket";
             webSocketService.connect(serverUrl, (status) -> {
                 Platform.runLater(() -> {
                     updateWebSocketStatus("WebSocket: " + status);

@@ -502,7 +502,7 @@ public class MenuController {
             
             // WebSocket subscription for real-time room updates
             WebSocketService webSocketService = context.getBean(WebSocketService.class);
-            String serverUrl = "http://localhost:8080/uno-websocket";
+            String serverUrl = apiService.getBaseUrl() + "/uno-websocket";
             
             webSocketService.connect(serverUrl, (status) -> {
                 Platform.runLater(() -> {
